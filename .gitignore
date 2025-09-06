@@ -1,0 +1,12 @@
+Vrty*
+DATA*/
+*.exe
+data*/
+err/
+.venv/
+.vscode/
+*.bak
+2025*
+__pycache*
+Vrty_*\
+

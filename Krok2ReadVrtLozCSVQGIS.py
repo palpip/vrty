@@ -1,0 +1,166 @@
+''' Utilita načíta v každom podadresári TOPDIR
+csv súbory vty.csv '''
+import csv
+import re #parsovanie vrtdat
+import _utils
+import proj4
+import os.path
+import logging
+from _settings import *
+
+VRTLOZCSV = r'\\' + VRTLOZCSV
+VRTLOZDATCSV = r'\\' + VRTLOZDATCSV
+
+# TOPDIR = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
+# VRTLOZCSV = r'\vrtloz.csv'
+# VRTLOZDATCSV = r'\vrtlozdat.csv'
+# PATHBASEINDB = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
+# WEBTOPDIR = r'http://172.16.0.2/dokumenty/Vrty_2025'
+
+logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO)
+logger=logging.getLogger()
+
+resultfile = open(TOPDIR + r'\vrtylozGIS.csv', 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
+def adjust_pdf(row):
+	'''dostane kompletny riadok vrtu, v poli 0 je cislo vrtu
+	v poli 1 je cesta ku suboru vrt a vráti názov pdf'''
+	
+	pdfpath0 = os.path.dirname(row[1].strip()) + '\\'
+	filename = row[0]
+	
+	retval = 'NA'
+	pdffullname = pdfpath0+ filename + '.pdf'
+	if os.path.isfile(pdffullname): 
+		#logger.warning("0 " + pdffullname)
+	#	print(pdfullname)
+		retval = pdffullname
+	else:
+		filename = 	filename.replace(' ','').replace('/','_').replace('.','_')
+		pdffullname = pdfpath0 +  filename + '.pdf'
+		if os.path.isfile(pdffullname):
+			#logger.warning("1 " + pdffullname)
+	#		print(pdfullname)
+			retval = pdffullname
+		else:
+			filename = 	_utils.remove_dia(filename)
+			pdffullname = pdfpath0 +  filename + '.pdf'
+			if os.path.isfile(pdffullname):
+				#logger.warning("2 " +  pdffullname)
+				print(pdffullname)
+				retval = pdffullname
+	if retval != 'NA':				
+		# pdfpath = pdfpath0.replace(PATHBASEINDB, WEBTOPDIR)
+		# pdfpath = pdfpath.replace('\\', '/')
+		# retval = pdfpath + filename + ".pdf"
+		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
+		retval = retval.replace('\\', '/')
+	else:
+		logger.error(row[0] + ' : ' + pdfpath0 + filename + '.pdf')
+		#print(row[0],retval)	
+	return retval
+
+def CSVReader(topdir):
+    retval = _utils.Subdirs(topdir, True) #all dirs under TOPDIR
+    for  dir in retval:
+        #print (dir)
+        #todo test for existence
+        if not os.path.isfile(dir+VRTLOZCSV):
+            #print ("Warning: file {} does not exist", dir+VRTLOZCSV)
+            pass
+        else:
+            #privrav si dictionary s hladinami hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
+            hpvlist = oneVrtdatReader(dir+VRTLOZDATCSV)
+            with open(dir+VRTLOZCSV, encoding='cp1250') as csvfile:
+            #    data = csvfile.read()
+            #    csvfile = re.sub('\n.*?^[^\\s]','', data,re.M )    
+                try:
+                    next(csvfile) #skip header
+                    vrtreader = csv.reader(csvfile, delimiter=';')
+                    for row in vrtreader:
+                        if (len(row) > 13): #skip not parseable rows - niektoré položky sú na viac riadkov napr. 11756
+                            # row = [x.encode('ANSI').decode('cp1250') for x in row]
+                            x = row[10].replace(',', '.') #JTSK
+                            y = row[11].replace(',', '.')
+                            if x == '': x = '0'
+                            if y == '': y = '0'
+                            JTSK = proj4.JTSK_to_WGS(x,y) #pridaj JTSK
+                            JTSK =  map(str, JTSK) #urob z toho stringy
+                            row.extend(JTSK)
+                            pdfname = adjust_pdf(row)
+                            row.extend([pdfname])
+                            
+                            resultfile.write('; '.join((map(str, row)))+ ';\n')
+                        else:
+                            print("Málo položiek v zozname:", dir, row)
+                except Exception as err:
+                     print("READER Exception:", dir, row, f"{err=}, {type(err)=}")
+        
+#sekcia vrtdat.vrt - Zatial len HPV
+def oneVrtdatReader(vrtdat):
+    '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
+    tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt'''
+    VRTREPLACE1 = re.compile(r'(?ms)Vzorky.*?Podz', re.M)  
+    VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    if os.path.isfile(vrtdat):
+        with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
+            dict_hpv = {}
+            data_full =  vrtdat.read()
+            #print(data_full)
+            data_full = re.sub(VRTREPLACE1,r';', data_full)
+            #print(data_full)
+            data_split = re.split(VRTSPLIT, data_full)
+            for vrt in data_split:
+                dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
+    else:
+        dict_hpv={}    
+ #   print(dict_hpv)
+    return(dict_hpv)
+
+
+
+def get_hpv(vrt):
+    '''fn dostane blok '''
+    if vrt == '':
+         return {}
+    try:
+        [vrtname, vrtfile,dummy] = re.split('[\n;]', vrt,2)
+    except Exception as err:
+        logger.error('get_hpv: ', vrt, f"ERR {err=}, {type(err)=}")  #je to trochu riziko
+    
+    #print(vrtfile, vrtname)
+    #vrt = vrt.strip('\n')
+    try: 
+        if not vrt.endswith('Ustálená;') and vrt.find('Ustálená;') > 0:   #niektoré vrty nemajú ani hpv
+            [dummy,pv] = re.split('Ustálená;\n',vrt,2)
+            #pv=pv.strip('\n')
+            #print(pv,'---', pv.strip(';'))
+            if pv != '':
+                hpv = pv.split('\n')
+                for n, vrstva in enumerate(hpv):
+                    hpv[n] = vrstva.replace('\n', '').strip(';').replace(';','-') #vyhod EOL, okrajove ; a daj rozsah
+                #    print (n,vrtname, hpv[n])
+                hpvn = hpv
+                hpvu = 'NA0'
+            else:
+                hpvn = hpvu = 'NA1'    
+        else:
+            hpvn = hpvu = 'NA2'
+    except Exception as err:
+        logger.error('get_hpv: ',vrtname, vrtfile,f"ERR {err=}, {type(err)=}")  #je to trochu riziko
+        hpvn = hpvu = 'NA3'
+    #print(hpvn, hpvu)
+    return{vrtname : (hpvn, hpvu)}
+
+def main():
+    
+    print('Started')
+    resultfile.write('''Vrt;File;Uloha;CUloha;Firma;Lokalita;Kataster;Okres;Kraj;\
+Listmapy;JTSKX;JTSKY;Hteren;PocvaJTSKX;PocvaJTSKY;HPocva;DobaOd;DobaDo;Hlbka;Druhvrtu;\
+SposobReal;Uklon;Smer;Vrtal;Mierka;NA;Lat;Lon;PDF\n''')
+    CSVReader(TOPDIR)
+    resultfile.close()
+    print ('lozvrty - done')
+if __name__ == '__main__':
+    main()
+

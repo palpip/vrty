@@ -32,6 +32,7 @@ KMLNAME = TOPDIR + r'\KML.kml'
 ERRLOGFILE = TOPDIR + r'\errorLog.log'
 KROK1LOGFILE = TOPDIR + r'\krok1.log'
 KROK2LOGFILE = TOPDIR + r'\krok2.log'
+KROK2PDF = TOPDIR + r'\krok2pdf.log'
 KROK3LOGFILE = TOPDIR + r'\krok3.log'
 KROK4LOGFILE = TOPDIR + r'\krok4.log'
 

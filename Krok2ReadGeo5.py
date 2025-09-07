@@ -8,8 +8,12 @@ from proj4 import JTSK_to_WGS
 from _utils import dirEntries
 from _settings import *
 
-logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO, filemode='w')
-logger=logging.getLogger()
+
+logger=logging.getLogger('vrt')
+logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='a'))
+logger_pdf = logging.getLogger('pdf')
+logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
+
 
 KMLNAME = TOPDIR + r'\Geo5N.kml'
 _KML = '' #global variable initialized in main
@@ -91,14 +95,17 @@ def get_hlbky_dict(sheet):
 
 def process_workbook(wbname):
     wb = op.load_workbook(wbname)
-    hlbky = get_hlbky_dict(wb['Dáta - Skúška|Vŕtanie'])
-    sheet = wb['FieldTests']
+    if 'FieldTests' not in wb.sheetnames:
+        logger.error (f'{wbname} nie je z Geo5')
+        return []
 
+    sheet = wb['FieldTests']
     if sheet:
         vrty = get_cells_dict(sheet)
     else:
         print(wbname, "neni")
         return
+    hlbky = get_hlbky_dict(wb['Dáta - Skúška|Vŕtanie'])
     retval = []
     for vrt in vrty:
         #eliminuj chyby ak načíta prázdny riadok
@@ -156,8 +163,8 @@ HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL\n'''
 SEP = ';'
 
 
-
-wblist = dirEntries(PATHBASEINDB,True, 'xls', 'xlsx')
+#len xlsx, openpyxl nepodporuje xls
+wblist = dirEntries(PATHBASEINDB,True,  'xlsx', 'xls')
 _KML = simplekml.Kml()
 # print(wblist)    
 vrtyDict = list()

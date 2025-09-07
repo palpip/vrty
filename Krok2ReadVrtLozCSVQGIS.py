@@ -17,10 +17,12 @@ VRTLOZDATCSV = r'\\' + VRTLOZDATCSV
 # PATHBASEINDB = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
 # WEBTOPDIR = r'http://172.16.0.2/dokumenty/Vrty_2025'
 
-logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO)
-logger=logging.getLogger()
+logger=logging.getLogger('vrt')
+logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='a'))
+logger_pdf = logging.getLogger('pdf')
+logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
+resultfile = open(VRTLOZCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
-resultfile = open(TOPDIR + r'\vrtylozGIS.csv', 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 def adjust_pdf(row):
 	'''dostane kompletny riadok vrtu, v poli 0 je cislo vrtu
 	v poli 1 je cesta ku suboru vrt a vráti názov pdf'''
@@ -55,7 +57,7 @@ def adjust_pdf(row):
 		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
 		retval = retval.replace('\\', '/')
 	else:
-		logger.error(row[0] + ' : ' + pdfpath0 + filename + '.pdf')
+		logger_pdf.error(row[0] + ' :::: ' + pdfpath0 + filename + '.pdf')
 		#print(row[0],retval)	
 	return retval
 

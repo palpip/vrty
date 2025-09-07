@@ -16,12 +16,15 @@ from _settings import *
 # WEBTOPDIR = r'http://172.16.0.2/dokumenty/Vrty_2025'
 # PATHBASEINDB = TOPDIR
 
-VRTCSV = r'\\' + VRTCSV
-VRTDATCSV = r'\\' + VRTDATCSV
+VRTCSV = '\\' + VRTCSV
+VRTDATCSV = '\\' + VRTDATCSV
 
 
-logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO)
-logger=logging.getLogger()
+# logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO, filemode='w')
+logger=logging.getLogger('vrt')
+logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='w'))
+logger_pdf = logging.getLogger('pdf')
+logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='w'))
 resultfile = open(VRTCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
 def adjust_pdf(row):
@@ -60,7 +63,7 @@ def adjust_pdf(row):
 		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
 		retval = retval.replace('\\', '/')
 	else:
-		logger.error(row[0] + ' : ' + pdfpath0 + filename + '.pdf')
+		logger_pdf.error(row[0] + ' : ' + pdfpath0 + filename + '.pdf')
 		#print(row[0],retval)	
 	return retval
 	
@@ -111,9 +114,9 @@ def CSVReader(topdir):
                         #    logger.info('; '.join((map(str, row)))+ ';')
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
                         else:
-                            logging.error("Málo položiek v zozname:" + dir + '/' + row[0])
+                            logger.error("Málo položiek v zozname:" + dir + '/' + row[0])
                 except Exception as err:
-                     logging.error ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
+                     logger.error ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
         
 #sekcia vrtdat.vrt - Zatial len HPV
 def oneVrtdatReader(vrtdat):

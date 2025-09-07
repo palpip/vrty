@@ -9,8 +9,11 @@ from  _settings import *
 # VRTLOZCSVQGIS = 'vrtlozGIS.csv'
 # GEO5QGIS = 'GEO5QGIS.csv'
 
-logging.basicConfig(filename = KROK3LOGFILE, level=logging.INFO, filemode='w')
-logger=logging.getLogger()
+# logging.basicConfig(filename = KROK3LOGFILE, level=logging.INFO, filemode='w')
+# logger=logging.getLogger()
+
+logger=logging.getLogger('vrt')
+logger.addHandler(logging.FileHandler(KROK3LOGFILE, mode='a'))
 
 TOPDIR = TOPDIR + '\\'
 dest_filename = TOPDIR + r"vrty.xlsx"

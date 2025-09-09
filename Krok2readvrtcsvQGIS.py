@@ -23,6 +23,7 @@ VRTDATCSV = '\\' + VRTDATCSV
 # logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='w'))
+logger.setLevel = logging.INFO
 logger_pdf = logging.getLogger('pdf')
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='w'))
 resultfile = open(VRTCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
@@ -71,6 +72,10 @@ def adjust_pdf(row):
 
 
 def CSVReader(topdir):
+    '''Najde kazdy vrt.csv pod topdir, vytiahne data, doplni o hpv, pdf, JTSK a ulozi do resultfile.csv
+    
+    ziskanie hpv z vrtdat csv je niekedy problematick0
+    '''
     retval = _utils.Subdirs(topdir, True) #all dirs under TOPDIR
     for  dir in retval:
         #print (dir)
@@ -85,12 +90,12 @@ def CSVReader(topdir):
             #    data = csvfile.read()
             #    csvfile = re.sub('\n.*?^[^\\s]','', data,re.M )    
                 try:
-                    print(VRTCSV)
+                    # print(VRTCSV)
                     row = next(csvfile) #skip header
-                    print(row)
+                    # print(row)
                     vrtreader = csv.reader(csvfile, delimiter=';')
                     for row in vrtreader:
-                        if (len(row) > 13): #skip not parseable rows - niektoré položky sú na viac riadkov napr. 11756
+                        if (len(row) >= 13): #skip not parseable rows - niektoré položky sú na viac riadkov napr. 11756
                             # row = [x.encode('ANSI').decode('cp1250') for x in row]
                             x = row[9].replace(',', '.') #JTSK
                             y = row[10].replace(',', '.')
@@ -103,9 +108,12 @@ def CSVReader(topdir):
                             #vyčisti hĺbku
                             row[22] = row[22].strip(' ').strip('m').strip(' ').replace(',','.').replace('vrtu ','')
                             #pridaj hpv ak existuje
-                            hpvresult = hpvlist[row[0]]     #cislo vrtu
-                            if hpvresult == (): 
+                            key = row[0]
+                            if key in hpvlist:
+                                hpvresult = hpvlist[key]     #cislo vrtu
+                            else: 
                                 hpvresult=('NA')
+                                logger.warning(f'hpv error: {key} {row}')
                             hpvresult =  map(str, hpvresult) #urob z toho stringy
                             row.extend(hpvresult)
                             pdfname = adjust_pdf(row)
@@ -114,48 +122,94 @@ def CSVReader(topdir):
                         #    logger.info('; '.join((map(str, row)))+ ';')
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
                         else:
-                            logger.error("Málo položiek v zozname:" + dir + '/' + row[0])
+                            logger.exception("Málo položiek v zozname:" + dir + '/' + row[0])
                 except Exception as err:
-                     logger.error ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
+                     logger.exception ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
         
-#sekcia vrtdat.vrt - Zatial len HPV
+# #sekcia vrtdat.vrt - Zatial len HPV
+# def oneVrtdatReader(vrtdat):
+#     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
+#     tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt'''
+#     VRTREPLACE1 = re.compile(r'(?ms)Vzorky.*?Podz', re.M)  #\01900\1900097\IGI-1.pdf
+#     VRTREPLACE2 = re.compile(r'(?ms)Vzorky.*?námka', re.M) #nefunguje Lupca 
+#     VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+#     VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+#     if os.path.isfile(vrtdat):
+#         with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
+#             dict_hpv = {}
+#             data_full =  vrtdat.read()
+#             # #print(data_full)
+#             # if re.search(VRTREPLACE1, data_full):
+#             #     data_full = re.sub(VRTREPLACE1,r';', data_full) #preco
+#             # elif re.search(VRTREPLACE2, data_full):
+#             #     data_full = re.sub(VRTREPLACE2,r';', data_full) #preco
+                
+#             # #print(data_full)
+#             data_split = re.split(VRTSPLIT, data_full)
+#             for vrt in data_split:
+#                 print('-'*3, '\n' )
+#                 print(vrt)
+#                 if len(vrt) > 50:
+#                     dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
+#                 else:
+#                      dict_hpv={}
+#     else:           
+#         dict_hpv={}    
+#  #   print(dict_hpv)
+#     return(dict_hpv)
 def oneVrtdatReader(vrtdat):
     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
-    tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt'''
+    tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt
+    veľká zmena 20250909
+    doteraz sa vrtdat delil na základe EOL a nasledovným začiatkom riadku bez bodkočiarky. V niektorých prípadoch, napr 11747 to
+    nefungovalo. Skúsime to deliť na základe tých istých parametrov, ale v konkrétnom riadku musí byť aj meno súboru.
+    '''
     VRTREPLACE1 = re.compile(r'(?ms)Vzorky.*?Podz', re.M)  #\01900\1900097\IGI-1.pdf
     VRTREPLACE2 = re.compile(r'(?ms)Vzorky.*?námka', re.M) #nefunguje Lupca 
     VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    print(r'\n(?=^;.*?;c:\\Shares)', re.M)
+    
+    VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    
     if os.path.isfile(vrtdat):
         with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
             dict_hpv = {}
             data_full =  vrtdat.read()
-            #print(data_full)
-            if re.search(VRTREPLACE1, data_full):
-                data_full = re.sub(VRTREPLACE1,r';', data_full) #preco
-            elif re.search(VRTREPLACE2, data_full):
-                data_full = re.sub(VRTREPLACE2,r';', data_full) #preco
                 
             #print(data_full)
             data_split = re.split(VRTSPLIT, data_full)
             for vrt in data_split:
-                #print(vrt)
-                dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
+                # print('-----' * 3, '\n')
+                # print('vrt:>',vrt,'<')
+                if re.search(VRTREPLACE1, data_full):
+                    data_full = re.sub(VRTREPLACE1,r';', data_full) #preco
+                elif re.search(VRTREPLACE2, data_full):
+                    data_full = re.sub(VRTREPLACE2,r';', data_full) #preco
+            
+                # print('vrt:>',vrt,'<')
+                if len(vrt) > 50:
+                    dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
     else:
         dict_hpv={}    
- #   print(dict_hpv)
+    # print(dict_hpv)
     return(dict_hpv)
 
 
 
 def get_hpv(vrt):
     '''fn dostane blok '''
-    [vrtname, vrtfile,dummy] = re.split('[\n;]', vrt,2)
-    #print(vrtfile, vrtname, vrtname == 'S-1')
-    vrt = vrt.strip('\n')
     try: 
+        [vrtname, vrtfile,dummy] = re.split('[\n;]', vrt, maxsplit = 2 )
+        #print(vrtfile, vrtname, vrtname == 'S-1')
+        vrt = vrt.strip('\n')
+    except Exception as err:
+        logger.exception(f'err get_hpv1: {vrtname} {vrtfile} {err=}, {type(err)=}')  #je to trochu riziko
+        return {}
+    try:    
         if not vrt.endswith('Ustálená;') and vrt.find('Ustálená;') > 0:   #niektoré vrty nemajú ani hpv
-            [dummy,pv] = re.split('Ustálená;\n',vrt,2)
+            [dummy,pv] = re.split('Ustálená;\n', vrt, maxsplit=2)
             #pv=pv.strip('\n')
             #print(pv,'---', pv.strip(';'))
             if pv != '':
@@ -170,14 +224,17 @@ def get_hpv(vrt):
         else:
             hpvn = hpvu = 'NA2'
     except Exception as err:
-        print('get_hpv: ',vrtname, vrtfile,f"ERR {err=}, {type(err)=}")  #je to trochu riziko
+        logger.exception(f'err get_hpv2: {vrtname} {vrtfile} {err=}, {type(err)=}')  #je to trochu riziko
         hpvn = hpvu = 'NA3'
-    #print(hpvn, hpvu)
+    print({vrtname : (hpvn, hpvu)})
     return{vrtname : (hpvn, hpvu)}
 
 def main():
-    
-    print('Started')
+    # VRTDAT = 'c:\\Shares\\vrty\\vrty3\\python\\Vrty_202509\\10744\\vrtdat.csv'
+    # res = oneVrtdatReader(VRTDAT)
+    # print(res)
+    # exit(0)
+    # # print('Started')
     resultfile.write('''Vrt;File;Uloha;Priloha;Ucel;Firma;Lokalita;Okres;Kraj;JTSKX;\
 JTSKY;Hteren;Hpaznica;Dielo;Etapa;Obstaravatel;Vrtal;Suprava;Vrtmajster;Doba;\
 Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;PDF\n''')

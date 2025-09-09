@@ -1,6 +1,6 @@
 rem .\.venv\scripts\activate.bat
 rem Vytvori kovarikove csv cez expVrt.ex
-.\.venv\scripts\python Krok1Prepare.py
+rem .\.venv\scripts\python Krok1Prepare.py
 rem pause
 rem nacita surove data z Geo5, Vrt, VrtLoz a vytvori csv
 .\.venv\scripts\python Krok2ReadGeo5.py

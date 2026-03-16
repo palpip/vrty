@@ -159,12 +159,14 @@ HEADER =['Vrt','File','Uloha','Priloha','Ucel','Firma','Lokalita','Okres','Kraj'
         JTSKY','Hteren','Hpaznica','Dielo','Etapa','Obstaravatel','Vrtal','Suprava','Vrtmajster','Doba','\
         Geolog','Mierka','Hlbka','void','Lat','Lon','HPV','Na','URL']
 
-HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL\n'''
+HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL;\n'''
 SEP = ';'
 
 
 #len xlsx, openpyxl nepodporuje xls
-wblist = dirEntries(PATHBASEINDB,True,  'xlsx', 'xls')
+#wblist = dirEntries(r'c:\Shares\vrty\vrty3\python\Vrty_202509',True,  'xlsx', 'xls')
+wblist = dirEntries(TOPDIR,True,  'xlsx', 'xls')
+
 _KML = simplekml.Kml()
 # print(wblist)    
 vrtyDict = list()

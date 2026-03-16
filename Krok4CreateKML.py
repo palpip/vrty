@@ -47,7 +47,7 @@ def kmlwrite_one_point_GEO5(vrt):
     pt.style.iconstyle.color ='ff00ff00' # aabbggrr
 
 def process_GEO5(wb):
-    sheet = wb['GEO5']
+    sheet = wb[SHGEO5]
     if sheet:
         vrty = get_cells_dict(sheet)
     else:
@@ -80,10 +80,11 @@ def kmlwrite_one_point_vrt(vrt):
     pt = FOLVRT.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ff00ff00' # aabbggrrdef process_vrt(wb):
-    
+    pt.style.iconstyle.color ='ffffffff' # aabbggrrdef process_vrt(wb):
+    pt.visibility = 0
+
 def process_vrt(wb):
-    sheet = wb['VRT']
+    sheet = wb[SHVRT]
     if sheet:
         vrty = get_cells_dict(sheet)
     else:
@@ -107,16 +108,15 @@ def kmlwrite_one_point_vrt_loz(vrt):
             'lokalita:{}<br>'.format(vrt['Lokalita'])+\
             'výška:{}<br>'.format(vrt['Hteren'])+\
             'hĺbka:{}<br>'.format(vrt['Hlbka'])+\
-            'dokumentoval:{}<br>'.format(vrt['Geolog'])+\
             '<a href="{}"> PDF </a>'.format(vrt['PDF'])
 
     pt = FOLVRTLOZ.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ff00ff00' # aabbggrrdef process_vrt(wb):
+    pt.style.iconstyle.color ='dd00ff00' # aabbggrrdef process_vrt(wb):
     
 def process_vrt_loz(wb):
-    sheet = wb['VRTLOZ']
+    sheet = wb[SHVRTLOZ]
     if sheet:
         vrty = get_cells_dict(sheet)
     else:
@@ -126,7 +126,7 @@ def process_vrt_loz(wb):
     for vrt in vrty:
         #(vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
         try:
-            kmlwrite_one_point_vrt(vrt)
+            kmlwrite_one_point_vrt_loz(vrt)
             retval.append(vrt)
         except Exception as err:
             print("READER Exception:", dir, f"{err=}, {type(err)=}") 
@@ -174,16 +174,18 @@ HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL\n'''
 
 _KML = simplekml.Kml()
 FOLGEO5 = _KML.newfolder(name='GEO5')
-FOLVRTLOZ = _KML.newfolder(name='VRTLOZ')
-FOLVRT = _KML.newfolder(name='VRT')
+FOLVRTLOZ = _KML.newfolder(name='VRTLOZ',visibility=0, open=0)
 
+FOLVRT = _KML.newfolder(name='VRT', visibility=0, open=0)
+FOLVRT.visibility = 0
 
 wb = op.load_workbook(EXCELWB)
 # vrtyDict = list()
 vrty = (process_GEO5(wb))
 vrty = (process_vrt(wb))
-# vrty = (process_vrt_loz(wb))
 
+vrty = (process_vrt_loz(wb))
+print(vrty)
 # for dic in vrty:
 #     vrtyDict.append(dic)
 # print(vrtyDict) 

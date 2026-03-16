@@ -55,7 +55,7 @@ def adjust_pdf(row):
 			pdffullname = pdfpath0 +  filename + '.pdf'
 			if os.path.isfile(pdffullname):
 				#logger.warning("2 " +  pdffullname)
-				print(pdffullname)
+				############### print(pdffullname)
 				retval = pdffullname
 	if retval != 'NA':				
 		# pdfpath = pdfpath0.replace(PATHBASEINDB, WEBTOPDIR)
@@ -64,18 +64,21 @@ def adjust_pdf(row):
 		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
 		retval = retval.replace('\\', '/')
 	else:
-		logger_pdf.error(row[0] + ' : ' + pdfpath0 + filename + '.pdf')
-		#print(row[0],retval)	
+		logger_pdf.error('Chýba ' + pdfpath0 + filename + '.pdf')
 	return retval
 	
 
-
+GOODROWCOUNT = 0
+ALLROWCOUNT = 0
 
 def CSVReader(topdir):
     '''Najde kazdy vrt.csv pod topdir, vytiahne data, doplni o hpv, pdf, JTSK a ulozi do resultfile.csv
     
     ziskanie hpv z vrtdat csv je niekedy problematick0
     '''
+    global GOODROWCOUNT 
+    global ALLROWCOUNT
+
     retval = _utils.Subdirs(topdir, True) #all dirs under TOPDIR
     for  dir in retval:
         #print (dir)
@@ -95,6 +98,7 @@ def CSVReader(topdir):
                     # print(row)
                     vrtreader = csv.reader(csvfile, delimiter=';')
                     for row in vrtreader:
+                        ALLROWCOUNT += 1
                         if (len(row) >= 13): #skip not parseable rows - niektoré položky sú na viac riadkov napr. 11756
                             # row = [x.encode('ANSI').decode('cp1250') for x in row]
                             x = row[9].replace(',', '.') #JTSK
@@ -121,10 +125,12 @@ def CSVReader(topdir):
                             row = [s.strip().replace('"','') for s in row] #niektore mali leading spaces
                         #    logger.info('; '.join((map(str, row)))+ ';')
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
+                            GOODROWCOUNT += 1
                         else:
                             logger.exception("Málo položiek v zozname:" + dir + '/' + row[0])
                 except Exception as err:
-                     logger.exception ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
+                    print('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
+                    logger.exception ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
         
 # #sekcia vrtdat.vrt - Zatial len HPV
 # def oneVrtdatReader(vrtdat):
@@ -168,7 +174,7 @@ def oneVrtdatReader(vrtdat):
     VRTREPLACE2 = re.compile(r'(?ms)Vzorky.*?námka', re.M) #nefunguje Lupca 
     VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    print(r'\n(?=^;.*?;c:\\Shares)', re.M)
+    # print(r'\n(?=^;.*?;c:\\Shares)', re.M)
     
     VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
@@ -224,9 +230,9 @@ def get_hpv(vrt):
         else:
             hpvn = hpvu = 'NA2'
     except Exception as err:
-        logger.exception(f'err get_hpv2: {vrtname} {vrtfile} {err=}, {type(err)=}')  #je to trochu riziko
+        logger.error('err get_hpv2: %s %s %s %s', vrtname, vrtfile, err, type(err))  #je to trochu riziko
         hpvn = hpvu = 'NA3'
-    print({vrtname : (hpvn, hpvu)})
+    # print({vrtname : (hpvn, hpvu)})
     return{vrtname : (hpvn, hpvu)}
 
 def main():
@@ -237,10 +243,11 @@ def main():
     # # print('Started')
     resultfile.write('''Vrt;File;Uloha;Priloha;Ucel;Firma;Lokalita;Okres;Kraj;JTSKX;\
 JTSKY;Hteren;Hpaznica;Dielo;Etapa;Obstaravatel;Vrtal;Suprava;Vrtmajster;Doba;\
-Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;PDF\n''')
+Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;PDF;\n''')
     CSVReader(TOPDIR)
     resultfile.close()
-    print ('vrty - done')
+    print(f'vrty - done all={ALLROWCOUNT} good={GOODROWCOUNT}  diff={ALLROWCOUNT - GOODROWCOUNT}')
+
 if __name__ == '__main__':
     main()
 
@@ -263,7 +270,9 @@ def test_headers(topdir = TOPDIR, csvfn='vrty.csv'):
                     if row not in headers:
                         headers.append(row)
             except Exception as err:
-                print("test_headers err:", csvfile, f"ERR {err=}, {type(err)=}, err") 
+                logger.error("test_headers chyba: %s %s %s", csvfile, err, type(err))
+                print("test_headers chyba: %s %s %s", csvfile, err, type(err))
+                
     for header in headers:
         #print(header)
         pass

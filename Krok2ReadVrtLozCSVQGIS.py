@@ -57,18 +57,19 @@ def adjust_pdf(row):
 		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
 		retval = retval.replace('\\', '/')
 	else:
-		logger_pdf.error(row[0] + ' :::: ' + pdfpath0 + filename + '.pdf')
-		#print(row[0],retval)	
+		logger_pdf.error('Chýba ' + pdfpath0 + filename + '.pdf')
+		print(row[0],retval)	
 	return retval
 
 def CSVReader(topdir):
     retval = _utils.Subdirs(topdir, True) #all dirs under TOPDIR
     for  dir in retval:
-        #print (dir)
+        print (dir)
         #todo test for existence
         if not os.path.isfile(dir+VRTLOZCSV):
-            #print ("Warning: file {} does not exist", dir+VRTLOZCSV)
             pass
+        elif os.path.getsize(dir+VRTLOZCSV) == 0 :
+            logger.error("Warning: Súbor %s má nulovú veľkosť", dir+VRTLOZCSV)
         else:
             #privrav si dictionary s hladinami hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
             hpvlist = oneVrtdatReader(dir+VRTLOZDATCSV)
@@ -94,9 +95,10 @@ def CSVReader(topdir):
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
                         else:
                             print("Málo položiek v zozname:", dir, row)
+                            logger.error("Málo položiek v zozname:", dir, row)
                 except Exception as err:
-                     print("READER Exception:", dir, row, f"{err=}, {type(err)=}")
-        
+                    logger.error("READER csv Exception:%s %s %s %s", dir, row, err, type(err))
+                    print("READER csv Exception:", dir, row, f"{err=}, {type(err)=}")
 #sekcia vrtdat.vrt - Zatial len HPV
 def oneVrtdatReader(vrtdat):
     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}

@@ -164,7 +164,7 @@ SEP = ';'
 
 
 #len xlsx, openpyxl nepodporuje xls
-wblist = dirEntries(PATHBASEINDB,True,  'xlsx', 'xls')
+wblist = dirEntries(r'c:\Shares\vrty\vrty3\python\Vrty_Geo5_202509A',True,  'xlsx', 'xls')
 _KML = simplekml.Kml()
 # print(wblist)    
 vrtyDict = list()

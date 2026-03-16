@@ -16,7 +16,7 @@ WEBTOPDIR = WEBURL + r'/TEST'                                        #názov nov
 EXCELFILE = TOPDIR + r'\vrtydata.xls' #bude mat tabuľky VRT, VRTLOZ, GE05
 
 
-VRTCSVQGIS = TOPDIR + r'\vrtyGIS.csv'    
+VRTCSVQGIS = TOPDIR + r'\vrtyGIS2.csv'    
 VRTLOZCSVQGIS = TOPDIR + r'\vrtylozGIS.csv'
 GEO5QGIS = TOPDIR + r'\GEO5QGIS.csv'
 

@@ -38,5 +38,7 @@ def test(wbname = excelfn):
             res[vrt] = hlbka
     print(res)
 
-test()    
+# test()
+from _settings import *
+print(TOPDIR)    
 print('finish')

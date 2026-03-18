@@ -114,6 +114,7 @@ def kmlwrite_one_point_vrt_loz(vrt):
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
     pt.style.iconstyle.color ='dd00ff00' # aabbggrrdef process_vrt(wb):
+    pt.style.iconstyle.color ='dd00ff00' # aabbggrrdef process_vrt(wb):
     
 def process_vrt_loz(wb):
     sheet = wb[SHVRTLOZ]

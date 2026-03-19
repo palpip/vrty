@@ -86,6 +86,10 @@ def CSVReader(topdir):
                             y = row[11].replace(',', '.')
                             if x == '': x = '0'
                             if y == '': y = '0'
+                            if y < x: 
+                                x, y = y, x
+                                row[11], row[10] = row[10],row[11]
+                            
                             JTSK = proj4.JTSK_to_WGS(x,y) #pridaj JTSK
                             JTSK =  map(str, JTSK) #urob z toho stringy
                             row.extend(JTSK)

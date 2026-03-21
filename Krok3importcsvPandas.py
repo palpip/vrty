@@ -13,9 +13,11 @@ from  _settings import *
 
 # logging.basicConfig(filename = KROK3LOGFILE, level=logging.INFO, filemode='w')
 # logger=logging.getLogger()
+logging.basicConfig(filename = KROK3LOGFILE, level=logging.DEBUG, filemode='a')
+logger=logging.getLogger('Krok3')
+logger.addHandler(logging.StreamHandler())
 
-logger=logging.getLogger('vrt')
-logger.addHandler(logging.FileHandler(KROK3LOGFILE, mode='a'))
+# logger.addHandler(logging.FileHandler(KROK3LOGFILE, mode='w'))
 
 # TOPDIR = TOPDIR + '\\'
 # XLSNAME = r"PandasVrty.xlsx"
@@ -28,11 +30,16 @@ def save_frame(df, dirname, dfname):
     '''ulozi dataframes v adresari dirname vo formate
     dfname.csv, dfname.xlsx, dfname.sqlite3'''
     
-    print(f'ukladám {dfname}')
+    # print(f'ukladám {dfname}')
     if len(df) < 1.048e6:
-        with pd.ExcelWriter(XLSNAME, mode = 'a', engine='openpyxl', if_sheet_exists='replace') as EXCELWRITER:
-            df.to_excel(EXCELWRITER, sheet_name=dfname, index=False)
-            logger.info(f"{dirname} - {dfname} {len(df)} riadkov uložených do excelu")
+        try:    
+            with pd.ExcelWriter(XLSNAME, mode = 'a', engine='openpyxl', if_sheet_exists='replace') as EXCELWRITER:
+                df.to_excel(EXCELWRITER, sheet_name=dfname, index=False)
+                logger.info(f"{dirname} - {dfname} {len(df)} riadkov uložených do excelu")
+                # df.info()
+        except Exception as err:
+                # print("Exception:", __file__, __name__, f"{err=}, {type(err)=}")
+                logger.error("Exception: %s %s", err, type(err))
     else:
         logger.error(f'{dfname} obsahuje {len(df)} riadkov, viac ako je povolený limit excelu, nie je uložené')
 
@@ -58,7 +65,7 @@ def save_frame(df, dirname, dfname):
 #     f.close
 def clean_duplicates(df):
     df_dup = df.sort_values(by='File',ascending=True).drop_duplicates(subset=["Vrt", "JTSKX", "JTSKY"], keep='last')
-    print(f"original:{df.shape}  reduced{df_dup.shape}")
+    # print(f"original:{df.shape}  reduced{df_dup.shape}")
     return df_dup
 
 
@@ -78,26 +85,29 @@ def to_num(df, cols):
 
 
 def create_xls_from_cvsPandas(fn, shname, shnum):
-    print(fn)
+    # print(fn)
     df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.')
     df = to_num(df, ['JTSKX', 'JTSKY'])
     df = clean_duplicates(df)
     df = clean_coordinates(df)
-    print(df.shape)
-    print(df.Vrt.head())
-    print(df)
+    # print(df.shape)
+    # print(df.Vrt.head())
+    # print(df)
     save_frame(df, TOPDIR, shnum)
 
 def create_xls_from_cvsPandas2(fn, shname, shnum):
-    print(fn)
-    df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.')
-    df = to_num(df, ['JTSKX', 'JTSKY'])
-    # df = clean_duplicates(df)
-    df = clean_coordinates(df)
-    print(df.shape)
-    print(df.Vrt.head())
-    print(df)
-    save_frame(df, TOPDIR, shnum)
+    # print(fn)
+    if os.path.isfile(fn):
+        df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.')
+        df = to_num(df, ['JTSKX', 'JTSKY'])
+        # df = clean_duplicates(df)
+        df = clean_coordinates(df)
+        # print(df.shape)
+        # print(df.Vrt.head())
+        # print(df)
+        save_frame(df, TOPDIR, shnum)
+    else:
+        logger.warn(f'Adresár {TOPDIR} neobsahuje súbory GEO5')
 
 
 
@@ -105,12 +115,10 @@ def create_xls_from_cvsPandas2(fn, shname, shnum):
 
 
 
-
-create_xls_from_cvsPandas(VRTLOZCSVQGIS, SHVRTLOZ,SHVRTLOZ)
+logger.info(40*'+'+' started krok3 Pandas')
 create_xls_from_cvsPandas(VRTCSVQGIS, SHVRT, SHVRT)
 create_xls_from_cvsPandas2(GEO5QGIS, SHGEO5, SHGEO5)
+create_xls_from_cvsPandas(VRTLOZCSVQGIS, SHVRTLOZ,SHVRTLOZ)
+logger.info(40*'+'+' done krok3 Pandas')
 
-print('Done')
 
-
-# wb.save(filename = dest_filename)

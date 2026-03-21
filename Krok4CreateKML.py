@@ -33,12 +33,18 @@ def get_cells_dict(sheet):
 
 def kmlwrite_one_point_GEO5(vrt):
     '''Používa global _KML'''
-    btext = 'čís:{}<br>'.format(vrt['Vrt'])+\
-            'úloha:{}<br>'.format(vrt['Uloha'])+\
-            'výška:{}<br>'.format(vrt['Hteren'])+\
-            'hĺbka:{}<br>'.format(vrt['Hlbka'])+\
-            'dokumentoval:{}<br>'.format(vrt['Geolog'])+\
-            '<a href="{}"> PDF </a>'.format(vrt['URL'])
+    # btext = 'čís:{}<br>'.format(vrt['Vrt'])+\
+    #         'úloha:{}<br>'.format(vrt['Uloha'])+\
+    #         'výška:{}<br>'.format(vrt['Hteren'])+\
+    #         'hĺbka:{}<br>'.format(vrt['Hlbka'])+\
+    #         'dokumentoval:{}<br>'.format(vrt['Geolog'])+\
+    #         '<a href="{}"> PDF </a>'.format(vrt['URL'])
+    btext = f"čís:{vrt['Vrt']}<br> \
+            úloha:{vrt['Uloha']}<br> \
+            výška:{vrt['Hteren']}<br> \
+            hĺbka:{vrt['Hlbka']}<br> \
+            'dokumentoval:{vrt['Geolog']}<br>" 
+    if vrt['URL']: btext += f"<a href=\"{vrt['URL']}\">PDF</a>"
 
     pt = FOLGEO5.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     # print(vrt['Názov skúšky'], vrt['Súradnica X'], vrt['Súradnica Y'],str(vrt['Lat']),str(vrt['Lon']), vrt['URL'])
@@ -47,35 +53,35 @@ def kmlwrite_one_point_GEO5(vrt):
     pt.style.iconstyle.color ='ff00ff00' # aabbggrr
 
 def process_GEO5(wb):
-    sheet = wb[SHGEO5]
-    if sheet:
-        vrty = get_cells_dict(sheet)
-    else:
-        print("list GEO5 nie je")
-        return
     retval = []
-    for vrt in vrty:
-        try:
-            kmlwrite_one_point_GEO5(vrt)
-            retval.append(vrt)
-        except Exception as err:
-            print("READER Exception:", dir, f"{err=}, {type(err)=}") 
-            logger.error("READER Exception:", dir, f"{err=}, {type(err)=}") 
+    if SHGEO5 in wb.sheetnames:
+        sheet = wb[SHGEO5]
+        vrty = get_cells_dict(sheet)
+        for vrt in vrty:
+            try:
+                kmlwrite_one_point_GEO5(vrt)
+                retval.append(vrt)
+            except Exception as err:
+                # print("READER Exception:", dir, f"{err=}, {type(err)=}") 
+                logger.error("READER Exception:", dir, f"{err}, {type(err)}") 
+    else:
+        logger.warn('tab. GEO5 neexistuje')
     return list(retval)
 
 def kmlwrite_one_point_vrt(vrt):
     '''Používa global _KML'''
-    HPVtext = vrt['HPV']
-    if (HPVtext != ' NA2'):
-        HPVtext = 'HPV:<br>' +  HPVtext.replace("'],['", '<br>').replace("']", '<br>').replace("['", '')
-    btext = 'čís:{}<br>'.format(vrt['Vrt'])+\
-            'úloha:{}<br>'.format(vrt['Uloha'])+\
-            'lokalita:{}<br>'.format(vrt['Lokalita'])+\
-            'výška:{}<br>'.format(vrt['Hteren'])+\
-            'hĺbka:{}<br>'.format(vrt['Hlbka'])+\
-            'dokumentoval:{}<br>'.format(vrt['Geolog'])+\
-            HPVtext+\
-            '<a href="{}"> PDF </a>'.format(vrt['PDF'])
+    if '[' in vrt['HPV']:
+        HPVtext = 'HPV:' +  vrt['HPV'].strip().replace("'],['", '<br>').replace("']", '<br>').replace("['", '')
+    else:
+        HPVtext = ''
+    btext = f"čís:{vrt['Vrt']}<br> \
+            úloha:{vrt['Uloha']}<br> \
+            lokalita:{vrt['Lokalita']}<br> \
+            výška:{vrt['Hteren']}<br> \
+            hĺbka:{vrt['Hlbka']}<br> \
+            {HPVtext} \
+            'dokumentoval:{vrt['Geolog']}<br>" 
+    if vrt['PDF']: btext += f"<a href=\"{vrt['PDF']}\">PDF</a>"
 
     pt = FOLVRT.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
@@ -88,7 +94,7 @@ def process_vrt(wb):
     if sheet:
         vrty = get_cells_dict(sheet)
     else:
-        print("list Vrt nie je")
+        logger.error("list Vrt nie je")
         return
     retval = []
     for vrt in vrty:
@@ -97,23 +103,31 @@ def process_vrt(wb):
             kmlwrite_one_point_vrt(vrt)
             retval.append(vrt)
         except Exception as err:
-            print("READER Exception:", dir, f"{err=}, {type(err)=}") 
-            logger.error("READER Exception:", dir, f"{err=}, {type(err)=}") 
+            logger.error("KMLWRITER Exception: {err=}, {type(err)=}") 
     return list(retval)
 
 def kmlwrite_one_point_vrt_loz(vrt):
     '''Používa global _KML'''
-    btext = 'čís:{}<br>'.format(vrt['Vrt'])+\
-            'úloha:{}<br>'.format(vrt['Uloha'])+\
-            'lokalita:{}<br>'.format(vrt['Lokalita'])+\
-            'výška:{}<br>'.format(vrt['Hteren'])+\
-            'hĺbka:{}<br>'.format(vrt['Hlbka'])+\
-            '<a href="{}"> PDF </a>'.format(vrt['PDF'])
+    btext = f"čís:{vrt['Vrt']}<br> \
+            úloha:{vrt['Uloha']}<br> \
+            lokalita:{vrt['Lokalita']}<br> \
+            výška:{vrt['Hteren']}<br> \
+            hĺbka:{vrt['Hlbka']}<br>"
+    if vrt['PDF']: btext += f"<a href=\"{vrt['PDF']}\">PDF</a>"
+
+    # btext0 = 'čís:{}<br>'.format(vrt['Vrt'])+ \
+    #         'úloha:{}<br>'.format(vrt['Uloha'])+ \
+    #         'lokalita:{}<br>'.format(vrt['Lokalita'])+ \
+    #         'výška:{}<br>'.format(vrt['Hteren'])+ \
+    #         'hĺbka:{}<br>'.format(vrt['Hlbka'])+\
+    #         '<a href="{}">PDF</a>'.format(vrt['PDF'])
+    # if btext0 != btext:
+    #     print(btext0,'\n', btext)        
+            
 
     pt = FOLVRTLOZ.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='dd00ff00' # aabbggrrdef process_vrt(wb):
     pt.style.iconstyle.color ='dd00ff00' # aabbggrrdef process_vrt(wb):
     
 def process_vrt_loz(wb):
@@ -121,7 +135,7 @@ def process_vrt_loz(wb):
     if sheet:
         vrty = get_cells_dict(sheet)
     else:
-        print("list Vrt loz nie je")
+        logger.error("list Vrtloz nie je")
         return
     retval = []
     for vrt in vrty:
@@ -130,45 +144,10 @@ def process_vrt_loz(wb):
             kmlwrite_one_point_vrt_loz(vrt)
             retval.append(vrt)
         except Exception as err:
-            print("READER Exception:", dir, f"{err=}, {type(err)=}") 
             logger.error("READER Exception:", dir, f"{err=}, {type(err)=}") 
     return list(retval)
 
-# def process_workbook(wbname = EXCELWB):
-#     wb = op.load_workbook(wbname)
-#     sheet = wb['FieldTests']
-#     if sheet:
-#         vrty = get_cells_dict(sheet)
-#     else:
-#         print(wbname, "neni")
-#         return
-#     retval = []
-#     for vrt in vrty:
-#         # [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y'])) #pridáme WGS
-#         # (vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
-#         try:
-#             #kmlwrite_one_point_extended(vrt)
-#             kmlwrite_one_point_balloon(vrt)
-#             retval.append(vrt)
-#         except Exception as err:
-#             print("READER Exception:", dir, f"{err=}, {type(err)=}") 
-#             logger.error("READER Exception:", dir, f"{err=}, {type(err)=}") 
-#     return list(retval)
-    
-# HEADER1 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
-#         'Súradnica Z pažnice', 'Príloha č.', 'Vrtmajster', 'Dokumentoval', 'Dátum zač.', 'Dátum kon.']
-# HEADER2 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
-#         'Príloha č.', 'Vrtmajster',	'Dokumentoval',	'Dátum zač.', 'Dátum kon.',\
-#         'Poznámky k vrtu	Dáta - Skúška|Vrtná súprava']
-# HEADERCSV ='''Vrt;File;Uloha;Priloha;Ucel;Firma;Lokalita;Okres;Kraj;JTSKX;\
-#         JTSKY;Hteren;Hpaznica;Dielo;Etapa;Obstaravatel;Vrtal;Suprava;Vrtmajster;Doba;\
-#          Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;URL\n'''
-
-# HEADER =['Vrt','File','Uloha','Priloha','Ucel','Firma','Lokalita','Okres','Kraj','JTSKX','\
-#         JTSKY','Hteren','Hpaznica','Dielo','Etapa','Obstaravatel','Vrtal','Suprava','Vrtmajster','Doba','\
-#         Geolog','Mierka','Hlbka','void','Lat','Lon','HPV','Na','URL']
-
-HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL\n'''
+# HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL\n'''
 # SEP = ';'
 
 
@@ -186,15 +165,13 @@ vrty = (process_GEO5(wb))
 vrty = (process_vrt(wb))
 
 vrty = (process_vrt_loz(wb))
-print(vrty)
+# print(vrty)
 # for dic in vrty:
 #     vrtyDict.append(dic)
 # print(vrtyDict) 
 
 _KML.save(KMLNAME)
-
-
-print('DONE')
+print('ALL DONE')
 
 
  

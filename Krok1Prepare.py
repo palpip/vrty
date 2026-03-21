@@ -13,7 +13,10 @@ import glob
 import logging
 from _settings import *
 logging.basicConfig(filename = KROK1LOGFILE, level=logging.DEBUG, filemode='w')
-logger=logging.getLogger()
+logger=logging.getLogger(name='ccc')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO)
+print(logging.BASIC_FORMAT)
 
 def Prepare(subdirs):
     for  dir in subdirs:
@@ -28,12 +31,11 @@ def Prepare(subdirs):
         if (not os.path.isfile(VRTCSV)) or (not os.path.isfile(VRTDATCSV)):
             if len(glob.glob('*.vrt')) > 0:
                 logger.error('nevygeneroval csv v ' + dir + str(len(glob.glob('*.vrt')))) 
-                print('ERROR nevygeneroval csv v ' + dir + str(len(glob.glob('*.vrt')))) 
             else:
-                logger.info('v adresari nie je *.vrt ' + dir)
+                logger.debug('v adresari nie je *.vrt ' + dir)
         else:
             logger.info('csv vygenerované ' + dir) 
-            print('INFO csv vygenerované ' + dir) 
+            # print('INFO csv vygenerované ' + dir) 
 
 def PrepareLoz(subdirs):
      for  dir in subdirs:
@@ -50,12 +52,11 @@ def PrepareLoz(subdirs):
         if (not os.path.isfile(VRTLOZCSV)) or (not os.path.isfile(VRTLOZDATCSV)):
             if len(glob.glob('*.vrl')) > 0:
                 logger.error('nevygeneroval csv v ' + dir + str(len(glob.glob('*.vrl')))) 
-                print('ERROR nevygeneroval csv v ' + dir + str(len(glob.glob('*.vrl')))) 
             else:
                 logger.debug('v adresari nie je *.vrl ' + dir)
         else:
             logger.info('csv vygenerované ' + dir) 
-            print('INFO csv vygenerované ' + dir) 
+            # print('INFO csv vygenerované ' + dir) 
 
 subs = _utils.Subdirs(TOPDIR, True)
 PrepareLoz(subs)

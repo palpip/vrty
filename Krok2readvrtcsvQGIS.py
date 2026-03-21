@@ -23,11 +23,14 @@ VRTDATCSV = '\\' + VRTDATCSV
 # logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='w'))
+# logger.addHandler(logging.StreamHandler())
 logger.setLevel = logging.INFO
 logger_pdf = logging.getLogger('pdf')
+logger_pdf.addHandler(logging.StreamHandler())
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='w'))
 resultfile = open(VRTCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
+logger.info('Starting')
 def adjust_pdf(row):
 	'''dostane kompletny riadok vrtu, v poli 0 je cislo vrtu
 	v poli 1 je cesta ku suboru vrt a vráti názov pdf'''
@@ -73,7 +76,6 @@ ALLROWCOUNT = 0
 
 def CSVReader(topdir):
     '''Najde kazdy vrt.csv pod topdir, vytiahne data, doplni o hpv, pdf, JTSK a ulozi do resultfile.csv
-    
     ziskanie hpv z vrtdat csv je niekedy problematick0
     '''
     global GOODROWCOUNT 
@@ -84,7 +86,7 @@ def CSVReader(topdir):
         #print (dir)
         #todo test for existence
         if not os.path.isfile(dir+VRTCSV):
-            #print ("Warning: file {} does not exist", dir+VRTCSV)
+            print (f"Warning: file {dir+VRTCSV} does not exist")
             pass
         else:
             #privrav si dictionary s hladinami hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
@@ -128,11 +130,11 @@ def CSVReader(topdir):
                             row = [s.strip().replace('"','') for s in row] #niektore mali leading spaces
                         #    logger.info('; '.join((map(str, row)))+ ';')
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
+                            ##### print('; '.join((map(str, row)))+ ';\n')
                             GOODROWCOUNT += 1
                         else:
                             logger.exception("Málo položiek v zozname:" + dir + '/' + row[0])
                 except Exception as err:
-                    print('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
                     logger.exception ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
         
 # #sekcia vrtdat.vrt - Zatial len HPV
@@ -175,13 +177,12 @@ def oneVrtdatReader(vrtdat):
     '''
     VRTREPLACE1 = re.compile(r'(?ms)Vzorky.*?Podz', re.M)  #\01900\1900097\IGI-1.pdf
     VRTREPLACE2 = re.compile(r'(?ms)Vzorky.*?námka', re.M) #nefunguje Lupca 
-    VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    # print(r'\n(?=^;.*?;c:\\Shares)', re.M)
+    VRTSPLIT0 = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    VRTSPLIT00 = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     
     VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    
+    print(VRTSPLIT, vrtdat[:-13], vrtdat)
     if os.path.isfile(vrtdat):
         with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
             dict_hpv = {}
@@ -202,7 +203,7 @@ def oneVrtdatReader(vrtdat):
                     dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
     else:
         dict_hpv={}    
-    # print(dict_hpv)
+    print(dict_hpv)
     return(dict_hpv)
 
 

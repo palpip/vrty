@@ -1,9 +1,13 @@
-﻿''' Zakladne nastavenia pre pracu s vrtmi'''
-#TOPDIR = r'c:\Shares\vrty\vrty3\python\testdelme'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+﻿''' Zakladne nastavenia pre pracu s vrtmi
+    TOPDIR je hlavný dátový adresár, v ktorom sa nachádzajú podadresáre so súbormi vrt, vrl a xlsx (GEO5)
+
+'''
+# TOPDIR = r'c:\Shares\vrty\vrty3\python\testdelme'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202509'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5202506'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\err'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
-TOPDIR = r'.\Vrty_202509'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+TOPDIR = r'c:\Shares\vrty\vrty3\python\ErrorsOK'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
+
 EXPVRTLOZ = r'c:\Shares\vrty\vrty3\python\ExpVrtLozOld.exe' 
 EXPVRT =  r'c:\Shares\vrty\vrty3\python\ExpVrt2025.exe'
 

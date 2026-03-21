@@ -15,8 +15,8 @@ logger_pdf = logging.getLogger('pdf')
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
 
 
-KMLNAME = TOPDIR + r'\Geo5N.kml'
-_KML = '' #global variable initialized in main
+# KMLNAME = TOPDIR + r'\Geo5N.kml'
+# _KML = '' #global variable initialized in main
 
 def get_cells_dict(sheet):
     '''fn dostane sheet z ktorého vráti zoznam dictionaries
@@ -46,39 +46,39 @@ def get_URL_uloha(vrtname, wbname):
     pdfname = head+'\\'+vrtname+'.pdf'
     if os.path.isfile(pdfname):
         print(pdfname, 'found')
+        pass
     else:
         print(pdfname, 'not found')
-        logger.error(vrtname + ' : ' + pdfname)
+        logger.error(vrtname + ' : ' + pdfname + "nenajdene")
     urlname = pdfname.replace(PATHBASEINDB, WEBTOPDIR).replace('\\', '/')
     uloha = head.replace(PATHBASEINDB+'\\', '')
     #print(urlname)
     return(urlname, uloha)
 
-def kmlwrite_one_point_balloon(vrt):
-    '''Používa global _KML'''
-    global _KML
-    btext = 'čís:{}<br>'.format(vrt['Názov skúšky'])+\
-            'úloha:{}<br>'.format(vrt['Úloha'])+\
-            'výška:{}<br>'.format(vrt['Súradnica Z'])+\
-            'dokumentoval:{}<br>'.format(vrt['Dokumentoval'])+\
-            '<a href="{}"> PDF </a>'.format(vrt['URL'])
+# def kmlwrite_one_point_balloon(vrt):
+#     '''Používa global _KML'''
+#     global _KML
+#     btext = 'čís:{}<br>'.format(vrt['Názov skúšky'])+\
+#             'úloha:{}<br>'.format(vrt['Úloha'])+\
+#             'výška:{}<br>'.format(vrt['Súradnica Z'])+\
+#             'dokumentoval:{}<br>'.format(vrt['Dokumentoval'])+\
+#             '<a href="{}"> PDF </a>'.format(vrt['URL'])
 
-    pt = _KML.newpoint(name=vrt['Názov skúšky'], coords=[(vrt['Lon'],vrt['Lat'])])
-    # print(vrt['Názov skúšky'], vrt['Súradnica X'], vrt['Súradnica Y'],str(vrt['Lat']),str(vrt['Lon']), vrt['URL'])
-    pt.description = vrt['Názov skúšky']
-    pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ff00ff00' # aabbggrr
+#     pt = _KML.newpoint(name=vrt['Názov skúšky'], coords=[(vrt['Lon'],vrt['Lat'])])
+#     # print(vrt['Názov skúšky'], vrt['Súradnica X'], vrt['Súradnica Y'],str(vrt['Lat']),str(vrt['Lon']), vrt['URL'])
+#     pt.description = vrt['Názov skúšky']
+#     pt.balloonstyle.text = btext
+#     pt.style.iconstyle.color ='ff00ff00' # aabbggrr
 
-def kmlwrite_one_point_extended(vrt):
-    '''Používa global _KML'''
-    global _KML
+# def kmlwrite_one_point_extended(vrt):
+#     '''Používa global _KML'''
+#     global _KML
     
-    pt = _KML.newpoint(name=vrt['Názov skúšky'], coords=[(vrt['Lon'],vrt['Lat'])])
-    pt.extendeddata.newdata(name='birds', value=400, displayname="Bird Species")
-    pt.extendeddata.newdata(name='aviaries', value=100, displayname="Aviaries")
-    pt.extendeddata.newdata(name='visitors', value=10000, displayname="Annual Visitors")
+#     pt = _KML.newpoint(name=vrt['Názov skúšky'], coords=[(vrt['Lon'],vrt['Lat'])])
+#     pt.extendeddata.newdata(name='birds', value=400, displayname="Bird Species")
+#     pt.extendeddata.newdata(name='aviaries', value=100, displayname="Aviaries")
+#     pt.extendeddata.newdata(name='visitors', value=10000, displayname="Annual Visitors")
     
-
 
 def get_hlbky_dict(sheet):
     '''vytvori dictionary vrt:maxhlbka a vrati ho'''
@@ -95,6 +95,7 @@ def get_hlbky_dict(sheet):
 
 def process_workbook(wbname):
     wb = op.load_workbook(wbname)
+    print(wbname)
     if 'FieldTests' not in wb.sheetnames:
         logger.error (f'{wbname} nie je z Geo5')
         return []
@@ -112,22 +113,21 @@ def process_workbook(wbname):
         if vrt['Názov skúšky']:
             print(wbname, vrt['Názov skúšky'])
             if vrt['Súradnica X'] and vrt['Súradnica Y']:
-                [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y'])) #pridáme WGS
+                [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y']))
             else:
-                print("error suradnice v {} vo vrte {}", wbname, vrt['Názov skúšky'])
+                vrt['Lat'] = vrt['Lon']= 0 #pridáme WGS
                 logger.error('suradnice v %s vo vrte %s' % (wbname, vrt['Názov skúšky']))
             (vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
             if vrt['Názov skúšky'] in hlbky:
                 vrt['Hĺbka'] = hlbky[vrt['Názov skúšky']]
             else:
                 vrt['Hĺbka'] = 0
-            print(vrt)
+            # print(vrt)
             try:
-                #kmlwrite_one_point_extended(vrt)
-                kmlwrite_one_point_balloon(vrt)
+                # kmlwrite_one_point_balloon(vrt)
                 retval.append(vrt)
             except Exception as err:
-                print("READER Exception:", wbname, f"{err=}, {type(err)=}") 
+                # print("READER Exception:", wbname, f"{err=}, {type(err)=}") 
                 logger.error("Exception: %s %s %s", wbname, err, type(err))
 
     return list(retval)
@@ -142,36 +142,36 @@ def write_csv(wbname):
         return
     
     for vrt in vrty:
+        if vrt['Súradnica X'] == None:
+            pass
         [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y'])) #pridáme WGS
         (vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
     return vrty    
    
-HEADER1 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
-        'Súradnica Z pažnice', 'Príloha č.', 'Vrtmajster', 'Dokumentoval', 'Dátum zač.', 'Dátum kon.']
-HEADER2 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
-        'Príloha č.', 'Vrtmajster',	'Dokumentoval',	'Dátum zač.', 'Dátum kon.',\
-        'Poznámky k vrtu	Dáta - Skúška|Vrtná súprava']
-HEADERCSV ='''Vrt;File;Uloha;Priloha;Ucel;Firma;Lokalita;Okres;Kraj;JTSKX;\
-        JTSKY;Hteren;Hpaznica;Dielo;Etapa;Obstaravatel;Vrtal;Suprava;Vrtmajster;Doba;\
-         Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;URL\n'''
+# HEADER1 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
+#         'Súradnica Z pažnice', 'Príloha č.', 'Vrtmajster', 'Dokumentoval', 'Dátum zač.', 'Dátum kon.']
+# HEADER2 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
+#         'Príloha č.', 'Vrtmajster',	'Dokumentoval',	'Dátum zač.', 'Dátum kon.',\
+#         'Poznámky k vrtu	Dáta - Skúška|Vrtná súprava']
+# HEADERCSV ='''Vrt;File;Uloha;Priloha;Ucel;Firma;Lokalita;Okres;Kraj;JTSKX;\
+#         JTSKY;Hteren;Hpaznica;Dielo;Etapa;Obstaravatel;Vrtal;Suprava;Vrtmajster;Doba;\
+#          Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;URL\n'''
 
-HEADER =['Vrt','File','Uloha','Priloha','Ucel','Firma','Lokalita','Okres','Kraj','JTSKX','\
-        JTSKY','Hteren','Hpaznica','Dielo','Etapa','Obstaravatel','Vrtal','Suprava','Vrtmajster','Doba','\
-        Geolog','Mierka','Hlbka','void','Lat','Lon','HPV','Na','URL']
+# HEADER =['Vrt','File','Uloha','Priloha','Ucel','Firma','Lokalita','Okres','Kraj','JTSKX','\
+#         JTSKY','Hteren','Hpaznica','Dielo','Etapa','Obstaravatel','Vrtal','Suprava','Vrtmajster','Doba','\
+#         Geolog','Mierka','Hlbka','void','Lat','Lon','HPV','Na','URL']
+# SEP = ';'
 
 HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL;\n'''
-SEP = ';'
-
 
 #len xlsx, openpyxl nepodporuje xls
-#wblist = dirEntries(r'c:\Shares\vrty\vrty3\python\Vrty_202509',True,  'xlsx', 'xls')
 wblist = dirEntries(TOPDIR,True,  'xlsx', 'xls')
-
-_KML = simplekml.Kml()
-# print(wblist)    
+print('wblist:', wblist)
+# _KML = simplekml.Kml()
 vrtyDict = list()
 vrty = list()
     
+f= open(GEO5QGIS, 'w')  
 for xlsx in wblist:
     
     if xlsx != EXCELWB: #nie vysledkovy excel, len excely v podadresaroch vrtov
@@ -179,33 +179,18 @@ for xlsx in wblist:
         vrty = (process_workbook(xlsx))
     for dic in vrty:
         if dic: vrtyDict.append(dic)
-        
-    # for dic in vrtyDict:
-    #     print('\n'+ str(dic))
-    # #print(vrtyDict)
-
-    # f= open('GEO5.csv', 'w')  
-    # f.write(';'.join(vrtyDict[0].keys())+'\n')
-    # for vrt in vrtyDict:
-    #     vals = map(str,vrt.values())
-    #     vals = [x.replace('\n', ' ') for x in vals]
-    #     f.write(';'.join(vals)+'\n')
-    f= open(GEO5QGIS, 'w')  
     f.write(HEADER)
     for vrt in vrtyDict:
          vals = map(str,vrt.values())
          vals = [x.replace('\n', ' ') for x in vals]
          f.write('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
                  , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
-         print('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
-                 , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
-       
-
-
-_KML.save(KMLNAME)
+        #  print('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
+        #          , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
+# _KML.save(KMLNAME)
 #print(vrtyDict)
 
-
+f.close
 print('DONE')
 
 

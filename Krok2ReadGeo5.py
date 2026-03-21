@@ -115,7 +115,7 @@ def process_workbook(wbname):
             if vrt['Súradnica X'] and vrt['Súradnica Y']:
                 [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y']))
             else:
-                vrt['Lat'] = vrt['Lon']= 0 #pridáme WGS
+                vrt['Lat'] = vrt['Lon'] = 0 #pridáme WGS
                 logger.error('suradnice v %s vo vrte %s' % (wbname, vrt['Názov skúšky']))
             (vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
             if vrt['Názov skúšky'] in hlbky:

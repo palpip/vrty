@@ -177,10 +177,9 @@ def oneVrtdatReader(vrtdat):
     '''
     VRTREPLACE1 = re.compile(r'(?ms)Vzorky.*?Podz', re.M)  #\01900\1900097\IGI-1.pdf
     VRTREPLACE2 = re.compile(r'(?ms)Vzorky.*?námka', re.M) #nefunguje Lupca 
-    VRTSPLIT0 = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    VRTSPLIT00 = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    
-    VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    # VRTSPLIT0 = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    # VRTSPLIT00 = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    # VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     print(VRTSPLIT, vrtdat[:-13], vrtdat)
     if os.path.isfile(vrtdat):
@@ -316,4 +315,3 @@ def testVrtdatReader():
                 pass
 
 
-#testDictReader()

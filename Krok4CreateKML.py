@@ -45,18 +45,19 @@ def kmlwrite_one_point_GEO5(vrt):
             hĺbka:{vrt['Hlbka']}<br> \
             'dokumentoval:{vrt['Geolog']}<br>" 
     if vrt['URL']: btext += f"<a href=\"{vrt['URL']}\">PDF</a>"
-
     pt = FOLGEO5.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     # print(vrt['Názov skúšky'], vrt['Súradnica X'], vrt['Súradnica Y'],str(vrt['Lat']),str(vrt['Lon']), vrt['URL'])
     pt.description = vrt['Vrt']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ff00ff00' # aabbggrr
+    pt.style.iconstyle.color ='ffffff00' # aabbggrr
+    # print(vrt['Vrt'])
 
 def process_GEO5(wb):
     retval = []
     if SHGEO5 in wb.sheetnames:
         sheet = wb[SHGEO5]
         vrty = get_cells_dict(sheet)
+        logger.info(f'GEO5  {len(vrty)}')
         for vrt in vrty:
             try:
                 kmlwrite_one_point_GEO5(vrt)
@@ -86,7 +87,7 @@ def kmlwrite_one_point_vrt(vrt):
     pt = FOLVRT.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ffffffff' # aabbggrrdef process_vrt(wb):
+    pt.style.iconstyle.color ='ff00ff00' # aabbggrrdef process_vrt(wb):
     pt.visibility = 0
 
 def process_vrt(wb):
@@ -128,7 +129,7 @@ def kmlwrite_one_point_vrt_loz(vrt):
     pt = FOLVRTLOZ.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='dd00ff00' # aabbggrrdef process_vrt(wb):
+    pt.style.iconstyle.color ='ff00ffff' # aabbggrrdef process_vrt(wb):
     
 def process_vrt_loz(wb):
     sheet = wb[SHVRTLOZ]
@@ -163,7 +164,6 @@ wb = op.load_workbook(EXCELWB)
 # vrtyDict = list()
 vrty = (process_GEO5(wb))
 vrty = (process_vrt(wb))
-
 vrty = (process_vrt_loz(wb))
 # print(vrty)
 # for dic in vrty:

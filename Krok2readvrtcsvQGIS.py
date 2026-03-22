@@ -86,7 +86,7 @@ def CSVReader(topdir):
         #print (dir)
         #todo test for existence
         if not os.path.isfile(dir+VRTCSV):
-            print (f"Warning: file {dir+VRTCSV} does not exist")
+            logger.warn (f"Warning: file {dir+VRTCSV} does not exist")
             pass
         else:
             #privrav si dictionary s hladinami hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
@@ -181,7 +181,7 @@ def oneVrtdatReader(vrtdat):
     # VRTSPLIT00 = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     # VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    print(VRTSPLIT, vrtdat[:-13], vrtdat)
+    # print(VRTSPLIT, vrtdat[:-13], vrtdat)
     if os.path.isfile(vrtdat):
         with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
             dict_hpv = {}
@@ -202,7 +202,7 @@ def oneVrtdatReader(vrtdat):
                     dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
     else:
         dict_hpv={}    
-    print(dict_hpv)
+    # print(dict_hpv)
     return(dict_hpv)
 
 

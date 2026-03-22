@@ -35,9 +35,9 @@ def get_cells_dict(sheet):
             rows.append(dict(zip(header, row)))
             j += 1
             #rows.append(zip(header, row))
-    for row in rows:
-         print(row)
-    print(j)
+    # for row in rows:
+    #      print(row)
+    # print(j)
     return rows
 
 def get_URL_uloha(vrtname, wbname):
@@ -45,7 +45,7 @@ def get_URL_uloha(vrtname, wbname):
     #print("head-tail ",head, tail)
     pdfname = head+'\\'+vrtname+'.pdf'
     if os.path.isfile(pdfname):
-        print(pdfname, 'found')
+        # print(pdfname, 'found')
         pass
     else:
         print(pdfname, 'not found')
@@ -86,7 +86,7 @@ def get_hlbky_dict(sheet):
     for row in sheet.rows:
         hlbka = row[2].value
         vrt = row[0].value
-        print(vrt,hlbka)
+        # print(vrt,hlbka)
         if vrt not in res:
             res[vrt] = hlbka
         elif  vrt != None and res[vrt] < hlbka:    # iterator row ide niekedy az do prazdneho riadku. To je chyba
@@ -111,7 +111,7 @@ def process_workbook(wbname):
     for vrt in vrty:
         #eliminuj chyby ak načíta prázdny riadok
         if vrt['Názov skúšky']:
-            print(wbname, vrt['Názov skúšky'])
+            # print(wbname, vrt['Názov skúšky'])
             if vrt['Súradnica X'] and vrt['Súradnica Y']:
                 [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y']))
             else:

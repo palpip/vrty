@@ -7,6 +7,8 @@ TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202509'    #skúsiť r'./Data', teda
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5202506'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\err'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 TOPDIR = r'c:\Shares\vrty\vrty3\python\ErrorsOK'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
+TOPDIR = r'c:\Shares\vrty\vrty3\python\vRTY_202512'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
+JOINDIR = r'c:\Shares\vrty\vrty3\python\joindir'     # Vyuziva len krok5 - sem xlsx na spajanie do jedneho
 
 EXPVRTLOZ = r'c:\Shares\vrty\vrty3\python\ExpVrtLozOld.exe' 
 EXPVRT =  r'c:\Shares\vrty\vrty3\python\ExpVrt2025.exe'
@@ -18,7 +20,7 @@ EXPVRT =  r'c:\Shares\vrty\vrty3\python\ExpVrt2025.exe'
 PATHBASEINDB = TOPDIR
 WEBURL = r'http://172.16.0.2/dokumenty'                           #kde sa nachádza na webe    
 WEBTOPDIR = WEBURL + r'/TEST'                                        #názov nového balíka
-EXCELFILE = TOPDIR + r'\vrtydata.xls' #bude mat tabuľky VRT, VRTLOZ, GE05
+# EXCELFILE = TOPDIR + r'\vrtydata.xls' #bude mat tabuľky VRT, VRTLOZ, GE05
 
 
 VRTCSVQGIS = TOPDIR + r'\vrtyGIS.csv'    
@@ -30,8 +32,9 @@ SHVRT = 'VRT'
 SHVRTLOZ = 'VRTLOZ'
 
 EXCELWB = TOPDIR + r'\vrty.xlsx'
+EXCELJOINED = JOINDIR + r'\Spojene_vrty.xlsx'
 KMLNAME = TOPDIR + r'\KML.kml'
-
+KMLJOINED = JOINDIR + r'\KML.kml'
 
 #log files
 ERRLOGFILE = TOPDIR + r'\errorLog.log'
@@ -40,6 +43,8 @@ KROK2LOGFILE = TOPDIR + r'\krok2.log'
 KROK2PDF = TOPDIR + r'\krok2pdf.log'
 KROK3LOGFILE = TOPDIR + r'\krok3.log'
 KROK4LOGFILE = TOPDIR + r'\krok4.log'
+KROK5LOGFILE = JOINDIR + r'\krok5.log'
+
 
 
 #temporary files - výstup z ExpVrt a ExpVrtLoz, nachádzajú sa v jednotlivých úlohách

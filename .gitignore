@@ -12,6 +12,9 @@ Vrty_*\
 compare/
 testDelme/
 Error*/
-OK-CSV/
+# OK-CSV/
+joindir/
+Bak*
+
 
 

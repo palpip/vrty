@@ -224,8 +224,8 @@ def add_to_xls(df, shnum):
 def get_xlsx_to_join():
     ''' Funkcia pozrie do TOPDIR a JOINDIR a vráti zoznam xls na spájanie
     táto funkcia netestuje, či sú to súbory z vrtov alebo nie'''
-    xlsfiles = dirEntries(TOPDIR, False, 'xlsx')
-    xlsfiles.extend(dirEntries(JOINDIR, False, 'xlsx'))
+    xlsfiles = (dirEntries(JOINDIR, False, 'xlsx'))
+    # xlsfiles = xlsfiles.extend(TOPDIR, False, 'xlsx')
     return (xlsfiles)
 
 
@@ -236,9 +236,11 @@ def create_joined():
     Je to dolezite, lebo zakladny subor do septembra 2025 obsahuje v sebe viacero rucnych zasahov
     v Geosoftovych csv suborov a jeho automaticke pregenerovanie z cistych csv suborov by viedlo 
     ku strate niektorych udajov'''
-    os.remove(EXCELJOINED)
+    if  os.path.isfile(EXCELJOINED):
+        os.remove(EXCELJOINED)
     sheets = [SHGEO5, SHVRT, SHVRTLOZ]
     xlsfiles = get_xlsx_to_join()
+
     pd.DataFrame().to_excel(EXCELJOINED, sheet_name = 'info', index=0)
 
     for sheet in sheets:
@@ -260,9 +262,30 @@ def create_joined():
 # print(vrty_df.shape)
 # exit(0)
 
+import requests
+def test_url(df, col):
+    for url in df[col]:
+        try:
+            page = requests.get(url)
+            # print(url, page.status_code)
+            if page.status_code != 200:
+                print(url, page.status_code)
+        except Exception as err:        
+            pass         #(requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
+            print(url)
+
+def test_pdf_access():
+    test_url(pd.read_excel(EXCELJOINED, sheet_name='GEO5'), 'URL')
+    test_url(pd.read_excel(EXCELJOINED, sheet_name='VRT'), 'PDF')
+    test_url(pd.read_excel(EXCELJOINED, sheet_name='VRTLOZ'), 'PDF')
+    
+    
+
+test_pdf_access()
+exit(0)    
 
 
-
+create_joined()
 _KML = simplekml.Kml()
 FOLGEO5 = _KML.newfolder(name='GEO5')
 FOLVRTLOZ = _KML.newfolder(name='VRTLOZ',visibility=0, open=0)
@@ -282,6 +305,7 @@ vrty = (process_vrt_loz(wb))
 
 _KML.save(KMLJOINED)
 print('ALL DONE')
+
 
 
  

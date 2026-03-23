@@ -84,23 +84,26 @@ def create_xls_from_cvsPandas(fn, shname, shnum):
 
 def create_xls_from_cvsPandas2(fn, shname, shnum):
     # print(fn)
-    bad_coor_df = pd.DataFrame() # dolezite pre vytvorenie prazdneho sheetu v xlsx v spodnom riadku
+    df = bad_coor_df = pd.DataFrame() # dolezite pre vytvorenie prazdneho sheetu v xlsx v spodnom riadku
     if os.path.isfile(fn):
-        df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.')
-        if (read_count := df.shape[0]) != 0: 
-            df = to_num(df, ['JTSKX', 'JTSKY'])
-            df = clean_duplicates(df, shname)
-            dedupl_count = df.shape[0]
-            bad_coor_df = bad_coordinates_df(df)
-            df = good_coordinates_df(df)
-            good_coor_count = df.shape[0]
-            # print(df.shape)
-            # print(df.Vrt.head())
-            # print(df)
-            logger.info(f'súbor {fn}: načítaných {read_count} deduplikovaných {dedupl_count}' \
-                        f' so správnymi súr. {good_coor_count} riadkov')
-        else:
-            logger.info(f'súbor {fn}: neobsahuje dáta')
+        try:
+            df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.', encoding='cp1250')
+            if (read_count := df.shape[0]) != 0: 
+                df = to_num(df, ['JTSKX', 'JTSKY'])
+                df = clean_duplicates(df, shname)
+                dedupl_count = df.shape[0]
+                bad_coor_df = bad_coordinates_df(df)
+                df = good_coordinates_df(df)
+                good_coor_count = df.shape[0]
+                # print(df.shape)
+                # print(df.Vrt.head())
+                # print(df)
+                logger.info(f'súbor {fn}: načítaných {read_count} deduplikovaných {dedupl_count}' \
+                            f' so správnymi súr. {good_coor_count} riadkov')
+            else:
+                logger.info(f'súbor {fn}: neobsahuje dáta')
+        except Exception as err:
+            logger.info(f'súbor {fn}: neobsahuje list {shname}')
     else:
         logger.warn(f'Adresár {TOPDIR} neobsahuje súbor {shname}')
     save_frame(df, TOPDIR, shnum)

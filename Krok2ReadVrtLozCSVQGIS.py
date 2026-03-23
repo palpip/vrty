@@ -111,15 +111,19 @@ def oneVrtdatReader(vrtdat):
     VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     if os.path.isfile(vrtdat):
-        with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
+        with open(vrtdat, 'r' ) as vrtd:
             dict_hpv = {}
-            data_full =  vrtdat.read()
-            #print(data_full)
-            data_full = re.sub(VRTREPLACE1,r';', data_full)
-            #print(data_full)
-            data_split = re.split(VRTSPLIT, data_full)
-            for vrt in data_split:
-                dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
+            try:
+                data_full =  vrtd.read()
+                #print(data_full)
+                data_full = re.sub(VRTREPLACE1,r';', data_full)
+                #print(data_full)
+                data_split = re.split(VRTSPLIT, data_full)
+                for vrt in data_split:
+                    dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
+            except Exception as err:
+                logger.error("Exception: %s %s %s", vrtdat, err, type(err))
+    
     else:
         dict_hpv={}    
  #   print(dict_hpv)

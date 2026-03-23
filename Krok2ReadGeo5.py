@@ -113,6 +113,9 @@ def process_workbook(wbname):
         if vrt['Názov skúšky']:
             # print(wbname, vrt['Názov skúšky'])
             if vrt['Súradnica X'] and vrt['Súradnica Y']:
+                if vrt['Súradnica X'] < vrt['Súradnica Y']:
+                    vrt['Súradnica X'] , vrt['Súradnica Y'] = vrt['Súradnica Y'] , vrt['Súradnica X']
+                    pass
                 [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y']))
             else:
                 vrt['Lat'] = vrt['Lon'] = 0 #pridáme WGS
@@ -142,7 +145,8 @@ def write_csv(wbname):
         return
     
     for vrt in vrty:
-        if vrt['Súradnica X'] == None:
+        if vrt['Súradnica X'] < vrt['Súradnica Y']:
+            vrt['Súradnica X'] , vrt['Súradnica Y'] = vrt['Súradnica Y'] , vrt['Súradnica X']
             pass
         [vrt['Lat'], vrt['Lon']] =JTSK_to_WGS(str(vrt['Súradnica X']),str(vrt['Súradnica Y'])) #pridáme WGS
         (vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
@@ -165,7 +169,7 @@ def write_csv(wbname):
 HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL;\n'''
 
 #len xlsx, openpyxl nepodporuje xls
-wblist = dirEntries(TOPDIR,True,  'xlsx', 'xls')
+wblist = dirEntries(TOPDIR,True,  'xlsx')
 print('wblist:', wblist)
 # _KML = simplekml.Kml()
 vrtyDict = list()

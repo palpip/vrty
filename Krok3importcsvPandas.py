@@ -72,7 +72,7 @@ def save_frame(df, dirname, dfname):
 
 def create_xls_from_cvsPandas(fn, shname, shnum):
     if os.path.isfile(fn):
-        df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.')
+        df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.', encoding='ANSI')
         df = to_num(df, ['JTSKX', 'JTSKY'])
         df = clean_duplicates(df)
         bad_coor = bad_coordinates_df(df)
@@ -83,11 +83,11 @@ def create_xls_from_cvsPandas(fn, shname, shnum):
     save_frame(df, TOPDIR, shnum)
 
 def create_xls_from_cvsPandas2(fn, shname, shnum):
-    # print(fn)
+    print(fn)
     df = bad_coor_df = pd.DataFrame() # dolezite pre vytvorenie prazdneho sheetu v xlsx v spodnom riadku
     if os.path.isfile(fn):
         try:
-            df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.', encoding='cp1250')
+            df = pd.read_csv(fn, on_bad_lines='warn', delimiter=';', decimal='.', encoding='ANSI')
             if (read_count := df.shape[0]) != 0: 
                 df = to_num(df, ['JTSKX', 'JTSKY'])
                 df = clean_duplicates(df, shname)
@@ -103,7 +103,7 @@ def create_xls_from_cvsPandas2(fn, shname, shnum):
             else:
                 logger.info(f'súbor {fn}: neobsahuje dáta')
         except Exception as err:
-            logger.info(f'súbor {fn}: neobsahuje list {shname}')
+            logger.info(f'súbor {fn}: neobsahuje list {shname} {err}')
     else:
         logger.warn(f'Adresár {TOPDIR} neobsahuje súbor {shname}')
     save_frame(df, TOPDIR, shnum)

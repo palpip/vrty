@@ -19,7 +19,9 @@ VRTLOZDATCSV = r'\\' + VRTLOZDATCSV
 
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='a'))
+logger.addHandler(logging.StreamHandler())
 logger_pdf = logging.getLogger('pdf')
+logger_pdf.addHandler(logging.StreamHandler())
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
 resultfile = open(VRTLOZCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
@@ -61,7 +63,14 @@ def adjust_pdf(row):
 		print(row[0],retval)	
 	return retval
 
+GOODROWCOUNT = 0
+ALLROWCOUNT = 0
+
 def CSVReader(topdir):
+
+    global GOODROWCOUNT 
+    global ALLROWCOUNT
+
     retval = _utils.Subdirs(topdir, True) #all dirs under TOPDIR
     for  dir in retval:
         print (dir)
@@ -77,9 +86,10 @@ def CSVReader(topdir):
             #    data = csvfile.read()
             #    csvfile = re.sub('\n.*?^[^\\s]','', data,re.M )    
                 try:
-                    next(csvfile) #skip header
+                    row = next(csvfile) #skip header
                     vrtreader = csv.reader(csvfile, delimiter=';')
                     for row in vrtreader:
+                        ALLROWCOUNT += 1
                         if (len(row) > 13): #skip not parseable rows - niektoré položky sú na viac riadkov napr. 11756
                             # row = [x.encode('ANSI').decode('cp1250') for x in row]
                             x = row[10].replace(',', '.') #JTSK
@@ -95,14 +105,14 @@ def CSVReader(topdir):
                             row.extend(JTSK)
                             pdfname = adjust_pdf(row)
                             row.extend([pdfname])
-                            
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
+                            GOODROWCOUNT += 1
                         else:
                             print("Málo položiek v zozname:", dir, row)
                             logger.error("Málo položiek v zozname:", dir, row)
                 except Exception as err:
-                    logger.error("READER csv Exception:%s %s %s %s", dir, row, err, type(err))
-                    print("READER csv Exception:", dir, row, f"{err=}, {type(err)=}")
+                    logger.error("READER csv Exception:%s %s %s ", dir , err, type(err))
+                    print("READER csv Exception:", dir,  f"{err=}, {type(err)=}")
 #sekcia vrtdat.vrt - Zatial len HPV
 def oneVrtdatReader(vrtdat):
     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
@@ -111,7 +121,7 @@ def oneVrtdatReader(vrtdat):
     VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     if os.path.isfile(vrtdat):
-        with open(vrtdat, 'r' ) as vrtd:
+        with open(vrtdat, 'r', encoding='cp1250' ) as vrtd:
             dict_hpv = {}
             try:
                 data_full =  vrtd.read()
@@ -172,6 +182,8 @@ Listmapy;JTSKX;JTSKY;Hteren;PocvaJTSKX;PocvaJTSKY;HPocva;DobaOd;DobaDo;Hlbka;Dru
 SposobReal;Uklon;Smer;Vrtal;Mierka;NA;Lat;Lon;PDF;\n''')
     CSVReader(TOPDIR)
     resultfile.close()
+    print(f'lozvrty - done all={ALLROWCOUNT} good={GOODROWCOUNT}  diff={ALLROWCOUNT - GOODROWCOUNT}')
+
     print ('lozvrty - done')
 if __name__ == '__main__':
     main()

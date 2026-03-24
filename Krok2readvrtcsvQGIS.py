@@ -23,10 +23,10 @@ VRTDATCSV = '\\' + VRTDATCSV
 # logging.basicConfig(filename = KROK2LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='w'))
-# logger.addHandler(logging.StreamHandler())
+logger.addHandler(logging.StreamHandler())
 logger.setLevel = logging.INFO
 logger_pdf = logging.getLogger('pdf')
-logger_pdf.addHandler(logging.StreamHandler())
+# logger_pdf.addHandler(logging.StreamHandler())
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='w'))
 resultfile = open(VRTCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
@@ -86,7 +86,7 @@ def CSVReader(topdir):
         #print (dir)
         #todo test for existence
         if not os.path.isfile(dir+VRTCSV):
-            logger.warn (f"Warning: file {dir+VRTCSV} does not exist")
+            logger.warning (f"Warning: file {dir+VRTCSV} does not exist")
             pass
         else:
             #privrav si dictionary s hladinami hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
@@ -180,7 +180,9 @@ def oneVrtdatReader(vrtdat):
     # VRTSPLIT0 = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     # VRTSPLIT00 = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     # VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-    VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
+    
+    # lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty 
+    VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) 
     # print(VRTSPLIT, vrtdat[:-13], vrtdat)
     if os.path.isfile(vrtdat):
         with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
@@ -200,6 +202,8 @@ def oneVrtdatReader(vrtdat):
                 # print('vrt:>',vrt,'<')
                 if len(vrt) > 50:
                     dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
+                else:
+                    logger.info('len vrt {len(vrt)}')
     else:
         dict_hpv={}    
     # print(dict_hpv)

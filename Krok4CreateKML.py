@@ -12,6 +12,11 @@ logging.basicConfig(filename = KROK4LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger()
 _KML = '' #global variable initialized in main
 
+LOZVRTCOLOR = 'ffff0000' # aabbggrr def process_vrt(wb):
+VRTCOLOR =    'ff00ff00'
+GEO5COLOR =   'fffff00f'
+
+
 
 def get_cells_dict(sheet):
     '''fn dostane sheet z ktorého vráti zoznam dictionaries
@@ -49,7 +54,7 @@ def kmlwrite_one_point_GEO5(vrt):
     # print(vrt['Názov skúšky'], vrt['Súradnica X'], vrt['Súradnica Y'],str(vrt['Lat']),str(vrt['Lon']), vrt['URL'])
     pt.description = vrt['Vrt']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ffffff00' # aabbggrr
+    pt.style.iconstyle.color = GEO5COLOR # aabbggrr
     # print(vrt['Vrt'])
 
 def process_GEO5(wb):
@@ -87,7 +92,7 @@ def kmlwrite_one_point_vrt(vrt):
     pt = FOLVRT.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ff00ff00' # aabbggrrdef process_vrt(wb):
+    pt.style.iconstyle.color = VRTCOLOR # aabbggrrdef process_vrt(wb):
     pt.visibility = 0
 
 def process_vrt(wb):
@@ -129,7 +134,7 @@ def kmlwrite_one_point_vrt_loz(vrt):
     pt = FOLVRTLOZ.newpoint(name=vrt['Vrt'], coords=[(vrt['Lon'],vrt['Lat'])])
     pt.description = vrt['Lokalita']
     pt.balloonstyle.text = btext
-    pt.style.iconstyle.color ='ff00ffff' # aabbggrrdef process_vrt(wb):
+    pt.style.iconstyle.color = LOZVRTCOLOR # aabbggrrdef process_vrt(wb):
     
 def process_vrt_loz(wb):
     sheet = wb[SHVRTLOZ]

@@ -122,7 +122,7 @@ def CSVReader(topdir):
                                 hpvresult = hpvlist[key]     #cislo vrtu
                             else: 
                                 hpvresult=('NA')
-                                logger.warning(f'hpv error: {key} {row}')
+                                # logger.warning(f'hpv error: {key} {row}')
                             hpvresult =  map(str, hpvresult) #urob z toho stringy
                             row.extend(hpvresult)
                             pdfname = adjust_pdf(row)

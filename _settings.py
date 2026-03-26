@@ -7,7 +7,7 @@
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5202506'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\err'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\ErrorsOK'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
-TOPDIR = r'c:\Shares\vrty\vrty3\python\VrtyTest'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
+TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_ALL'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
 JOINDIR = r'c:\Shares\vrty\vrty3\python\joindir'     # Vyuziva len krok5 - sem xlsx na spajanie do jedneho
 EXPVRTLOZ = r'c:\Shares\vrty\vrty3\python\ExpVrtLozOld.exe' 
 EXPVRT =  r'c:\Shares\vrty\vrty3\python\ExpVrt2025.exe'

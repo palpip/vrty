@@ -103,7 +103,10 @@ def CSVReader(topdir):
                             JTSK = proj4.JTSK_to_WGS(x,y) #pridaj JTSK
                             JTSK =  map(str, JTSK) #urob z toho stringy
                             row.extend(JTSK)
-                            pdfname = adjust_pdf(row)
+                            # OPRAVA
+                            # pdfname = adjust_pdf(row)
+                            pdfname = adjust_pdf([row[0], dir])
+                            
                             row.extend([pdfname])
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
                             GOODROWCOUNT += 1

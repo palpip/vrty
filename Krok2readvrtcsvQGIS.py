@@ -168,7 +168,7 @@ def CSVReader(topdir):
 #         dict_hpv={}    
 #  #   print(dict_hpv)
 #     return(dict_hpv)
-def oneVrtdatReader(vrtdat):
+def oneVrtdatReader(vrtfn):
     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
     tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt
     veľká zmena 20250909
@@ -182,10 +182,14 @@ def oneVrtdatReader(vrtdat):
     # VRTSPLIT = re.compile(r'\n(?=^[^;].*?;c:\\Shares)', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
     
     # lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty 
-    VRTSPLIT = re.compile(r'\n(?=^[^;].*?;'+ re.escape(vrtdat[:-13]) + ')', re.M) 
+    # VRTSPLIT = re.compile(r'\n(?=[^;].*?;'+ re.escape(vrtfn[:-13]) + ')', re.M) 
+    VRTSPLIT = re.compile(r'\n(?=[^;].*?;)', re.M) 
+ 
+    vrtfn
+    vrtfn
     # print(VRTSPLIT, vrtdat[:-13], vrtdat)
-    if os.path.isfile(vrtdat):
-        with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
+    if os.path.isfile(vrtfn):
+        with open(vrtfn, 'r', encoding='cp1250' ) as vrtdat:
             dict_hpv = {}
             data_full =  vrtdat.read()
                 

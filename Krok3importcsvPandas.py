@@ -3,15 +3,10 @@ import os
 import logging
 import pandas as pd
 import openpyxl as opx
-# from openpyxl import Workbook
-# from openpyxl.utils import get_column_letter
 from _funcs import *
 from  _settings import *
 
 
-# VRTCSVQGIS = 'vrtyGIS.csv'    
-# VRTLOZCSVQGIS = 'vrtlozGIS.csv'
-# GEO5QGIS = 'GEO5QGIS.csv'
 
 # logging.basicConfig(filename = KROK3LOGFILE, level=logging.INFO, filemode='w')
 # logger=logging.getLogger()
@@ -19,13 +14,7 @@ logging.basicConfig(filename = KROK3LOGFILE, level=logging.DEBUG, filemode='a')
 logger=logging.getLogger('Krok3')
 logger.addHandler(logging.StreamHandler())
 
-# logger.addHandler(logging.FileHandler(KROK3LOGFILE, mode='w'))
-
-# TOPDIR = TOPDIR + '\\'
-# XLSNAME = r"PandasVrty.xlsx"
 TOPDIR = TOPDIR + '\\'
-# XLSNAME = EXCELWB
-# wb = opx.Workbook()
 pd.DataFrame().to_excel(EXCELWB, sheet_name = 'info', index=0)
 
 def save_frame(df, dirname, dfname):

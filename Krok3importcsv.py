@@ -5,12 +5,6 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from  _settings import *
 
-# VRTCSVQGIS = 'vrtyGIS.csv'    
-# VRTLOZCSVQGIS = 'vrtlozGIS.csv'
-# GEO5QGIS = 'GEO5QGIS.csv'
-
-# logging.basicConfig(filename = KROK3LOGFILE, level=logging.INFO, filemode='w')
-# logger=logging.getLogger()
 
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK3LOGFILE, mode='a'))

@@ -11,11 +11,6 @@ from _settings import *
 VRTLOZCSV = r'\\' + VRTLOZCSV
 VRTLOZDATCSV = r'\\' + VRTLOZDATCSV
 
-# TOPDIR = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
-# VRTLOZCSV = r'\vrtloz.csv'
-# VRTLOZDATCSV = r'\vrtlozdat.csv'
-# PATHBASEINDB = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
-# WEBTOPDIR = r'http://172.16.0.2/dokumenty/Vrty_2025'
 
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='a'))
@@ -25,13 +20,10 @@ logger_pdf.addHandler(logging.StreamHandler())
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
 resultfile = open(VRTLOZCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
-def adjust_pdf(row):
+def adjust_pdf(dir, filename):
 	'''dostane kompletny riadok vrtu, v poli 0 je cislo vrtu
 	v poli 1 je cesta ku suboru vrt a vráti názov pdf'''
-	
-	pdfpath0 = os.path.dirname(row[1].strip()) + '\\'
-	filename = row[0]
-	
+	pdfpath0 = dir + '\\'
 	retval = 'NA'
 	pdffullname = pdfpath0+ filename + '.pdf'
 	if os.path.isfile(pdffullname): 
@@ -105,7 +97,7 @@ def CSVReader(topdir):
                             row.extend(JTSK)
                             # OPRAVA
                             # pdfname = adjust_pdf(row)
-                            pdfname = adjust_pdf([row[0], dir])
+                            pdfname = adjust_pdf(dir, row[0])
                             
                             row.extend([pdfname])
                             resultfile.write('; '.join((map(str, row)))+ ';\n')
@@ -139,7 +131,6 @@ def oneVrtdatReader(vrtdat):
     
     else:
         dict_hpv={}    
- #   print(dict_hpv)
     return(dict_hpv)
 
 
@@ -153,13 +144,9 @@ def get_hpv(vrt):
     except Exception as err:
         logger.error('get_hpv: ', vrt, f"ERR {err=}, {type(err)=}")  #je to trochu riziko
     
-    #print(vrtfile, vrtname)
-    #vrt = vrt.strip('\n')
     try: 
         if not vrt.endswith('Ustálená;') and vrt.find('Ustálená;') > 0:   #niektoré vrty nemajú ani hpv
             [dummy,pv] = re.split('Ustálená;\n',vrt,2)
-            #pv=pv.strip('\n')
-            #print(pv,'---', pv.strip(';'))
             if pv != '':
                 hpv = pv.split('\n')
                 for n, vrstva in enumerate(hpv):

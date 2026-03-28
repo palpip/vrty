@@ -9,12 +9,6 @@ import logging
 import _utils
 from _settings import *
 
-# TOPDIR = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
-# VRTCSV = r'\vrty.csv'
-# VRTDATCSV = r'\vrtdat.csv'
-# PATHBASEINDB = r'f:\aaa\PROGRAM\python\vrty2\Vrty_2025'
-# WEBTOPDIR = r'http://172.16.0.2/dokumenty/Vrty_2025'
-# PATHBASEINDB = TOPDIR
 
 VRTCSV = '\\' + VRTCSV
 VRTDATCSV = '\\' + VRTDATCSV
@@ -31,14 +25,13 @@ logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='w'))
 resultfile = open(VRTCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
 logger.info('Starting')
-def adjust_pdf(row):
+def adjust_pdf(dir, filename):
 	'''dostane kompletny riadok vrtu, v poli 0 je cislo vrtu
 	v poli 1 je cesta ku suboru vrt a vráti názov pdf'''
-	pdfpath0 = os.path.dirname(row[1].strip()) + '\\'
-	filename = row[0]
+	pdfpath0 = dir + '\\'
 	
 	retval = 'NA'
-	pdffullname = pdfpath0+ filename + '.pdf'
+	pdffullname = pdfpath0 + filename + '.pdf'
 	if os.path.isfile(pdffullname): 
 		# logger.warning("0 " + pdffullname)
 	    # print(pdfullname)
@@ -125,7 +118,7 @@ def CSVReader(topdir):
                                 # logger.warning(f'hpv error: {key} {row}')
                             hpvresult =  map(str, hpvresult) #urob z toho stringy
                             row.extend(hpvresult)
-                            pdfname = adjust_pdf(row)
+                            pdfname = adjust_pdf(dir, row[0])
                             row.extend([pdfname])
                             row = [s.strip().replace('"','') for s in row] #niektore mali leading spaces
                         #    logger.info('; '.join((map(str, row)))+ ';')
@@ -137,37 +130,6 @@ def CSVReader(topdir):
                 except Exception as err:
                     logger.exception ('CSV-READER: ' + dir + '/' + row[0] + f'{err=}, {type(err)=}')
         
-# #sekcia vrtdat.vrt - Zatial len HPV
-# def oneVrtdatReader(vrtdat):
-#     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
-#     tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt'''
-#     VRTREPLACE1 = re.compile(r'(?ms)Vzorky.*?Podz', re.M)  #\01900\1900097\IGI-1.pdf
-#     VRTREPLACE2 = re.compile(r'(?ms)Vzorky.*?námka', re.M) #nefunguje Lupca 
-#     VRTSPLIT = re.compile(r'\n(?=[^;\s])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-#     VRTSPLIT = re.compile(r'\n(?=[^;])', re.M) #lookahead EOL not followed by semicolon rozdelí na jednotlivé vrty
-#     if os.path.isfile(vrtdat):
-#         with open(vrtdat, 'r', encoding='cp1250' ) as vrtdat:
-#             dict_hpv = {}
-#             data_full =  vrtdat.read()
-#             # #print(data_full)
-#             # if re.search(VRTREPLACE1, data_full):
-#             #     data_full = re.sub(VRTREPLACE1,r';', data_full) #preco
-#             # elif re.search(VRTREPLACE2, data_full):
-#             #     data_full = re.sub(VRTREPLACE2,r';', data_full) #preco
-                
-#             # #print(data_full)
-#             data_split = re.split(VRTSPLIT, data_full)
-#             for vrt in data_split:
-#                 print('-'*3, '\n' )
-#                 print(vrt)
-#                 if len(vrt) > 50:
-#                     dict_hpv.update(get_hpv(vrt)) #update rozbalí list2
-#                 else:
-#                      dict_hpv={}
-#     else:           
-#         dict_hpv={}    
-#  #   print(dict_hpv)
-#     return(dict_hpv)
 def oneVrtdatReader(vrtfn):
     '''fn načíta názov súboru vrtdat.vrt a pripraví list v tvare hpv = { CVRT1 : (hpvn, hpvu), CVRT2 : ...}
     tento spôsob je výhodnejší oproti viacnásobnému načítavaniu a parsovaniu vrtddat.vrt
@@ -262,7 +224,7 @@ Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;PDF;\n''')
 if __name__ == '__main__':
     main()
 
-#testovacia suita
+#  testovacia suita nepotrebne
 #oneVrtdatReader(r'c:\Users\pp\program\python\vrty\TESTVRTDIR\10450\vrtdat1.csv')
 def test_headers(topdir = TOPDIR, csvfn='vrty.csv'):
     ''' prejde podadresáre pod TOPDIR, nájde v nich súbory vrty.csv
@@ -291,7 +253,6 @@ def test_headers(topdir = TOPDIR, csvfn='vrty.csv'):
 #test_headers(csvfn='vrty.csv')
 #exit(0)
 
-#--------------NOT USED --- YET
 def testDictReader():
     '''načítanie VRTCSV cez knižnicu csv, ktorá vlastne namiesto listu
     urobí z riadku dictionary s keys z headra. Nmá to význam, lebo

@@ -12,7 +12,9 @@ import subprocess
 import os
 import glob
 import logging
+from _funcs import chkdirs
 from _settings import *
+chkdirs()
 logging.basicConfig(filename = KROK1LOGFILE, level=logging.DEBUG, filemode='w')
 logger=logging.getLogger(name='ccc')
 logger.addHandler(logging.StreamHandler())
@@ -70,15 +72,10 @@ def PrepareLoz(subdirs):
                 logger.info('csv vygenerované ' + dir) 
                 # print('INFO csv vygenerované ' + dir) 
 
+chkdirs()
 subs = _utils.Subdirs(TOPDIR, True)
 #eliminuj ERRDIRS
 SEP = '\\' # window
-
-# for dir in subs:
-#     dirname = dir.replace(TOPDIR, '').split(SEP)
-#     print(dirname)
-#     # print(f'{dirname[0]}  ++---  {dirname[1]}'        )
-# exit(0)
 PrepareLoz(subs)
 Prepare(subs)
-print ('krok1 hotovo')
+print ('hotovo')

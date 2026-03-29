@@ -4,7 +4,9 @@ import openpyxl as op
 import simplekml
 import csv
 import logging
+from _funcs import *
 from _settings import *
+chkdirs()
 import _funcsKML as fKML
 
 logging.basicConfig(filename = KROK4LOGFILE, level=logging.INFO, filemode='w')

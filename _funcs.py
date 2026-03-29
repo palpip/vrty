@@ -2,6 +2,7 @@ import pandas as pd
 import logging
 import datetime as dt
 from _settings import *
+import os
 
 def create_logger(logname):
     '''Create and return a logger with the specified name'''
@@ -42,4 +43,11 @@ def to_num(df, cols):
         #memory usage 60347 vs 80255 bytes
         #df[col] = pd.to_numeric(df[col], errors='coerce', dtype_backend='pyarrow' ).astype(pd.ArrowDtype(pa.float64())) 
     return df
+
+
+def chkdirs():
+    if not os.path.exists(TOPDIR):
+        print(f'FATAL TOPDIR adresar {TOPDIR} neexistuje, nepokracujem...')
+        exit(-1)
+
 

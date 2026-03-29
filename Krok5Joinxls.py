@@ -9,10 +9,11 @@ import csv
 import logging
 # from proj4 import JTSK_to_WGS
 from _utils import dirEntries
-from _settings import *
 from _funcs import *
+from _settings import *
 import _funcsKML as fKML
 import pandas as pd
+chkdirs()
 
 logging.basicConfig(filename = 'CCC'+KROK5LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger()

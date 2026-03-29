@@ -1,3 +1,5 @@
+.\.venv\scripts\python Krok1Prepare.py
+
 rem .\.venv\scripts\activate.bat
 rem Vytvori kovarikove csv cez expVrt.ex
 rem pause
@@ -12,4 +14,5 @@ rem pause
 rem z xlsx vytvori kml.kml
 .\.venv\scripts\python Krok4CreateKML.py
 
+.\.venv\scripts\python Krok5Joinxls.py
 

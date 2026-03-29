@@ -7,13 +7,17 @@ import logging
 import pandas as pd
 from proj4 import JTSK_to_WGS
 from _utils import dirEntries
+from _funcs import chkdirs
 from _settings import *
+import warnings
 
+chkdirs()
 
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='a'))
 logger.addHandler(logging.StreamHandler())
 logger_pdf = logging.getLogger('pdf')
+logger_pdf.addHandler(logging.StreamHandler())
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
 
 
@@ -50,11 +54,10 @@ def get_URL_uloha(vrtname, wbname):
         # print(pdfname, 'found')
         pass
     else:
-        print(pdfname, 'not found')
-        logger.error(vrtname + ' : ' + pdfname + "nenajdene")
+        logger_pdf.warning (vrtname + ' : ' + pdfname + " nenajdene, polozka pripravena")
+
     urlname = pdfname.replace(PATHBASEINDB, WEBTOPDIR).replace('\\', '/')
     uloha = head.replace(PATHBASEINDB+'\\', '')
-    #print(urlname)
     return(urlname, uloha)
 
 
@@ -72,7 +75,10 @@ def get_hlbky_dict(sheet):
     return res
 
 def process_workbook(wbname):
-    wb = op.load_workbook(wbname)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        wb = op.load_workbook(wbname)
+
     print(wbname)
     if 'FieldTests' not in wb.sheetnames:
         logger.error (f'{wbname} nie je z Geo5')
@@ -130,31 +136,18 @@ def write_csv(wbname):
         (vrt['URL'], vrt['Úloha']) = get_URL_uloha(vrt['Názov skúšky'], wbname)
     return vrty    
    
-# HEADER1 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
-#         'Súradnica Z pažnice', 'Príloha č.', 'Vrtmajster', 'Dokumentoval', 'Dátum zač.', 'Dátum kon.']
-# HEADER2 = ['Názov skúšky',	'Template',	'Súradnica X', 'Súradnica Y', 'Súradnica Z','Posun počiatku',\
-#         'Príloha č.', 'Vrtmajster',	'Dokumentoval',	'Dátum zač.', 'Dátum kon.',\
-#         'Poznámky k vrtu	Dáta - Skúška|Vrtná súprava']
-# HEADERCSV ='''Vrt;File;Uloha;Priloha;Ucel;Firma;Lokalita;Okres;Kraj;JTSKX;\
-#         JTSKY;Hteren;Hpaznica;Dielo;Etapa;Obstaravatel;Vrtal;Suprava;Vrtmajster;Doba;\
-#          Geolog;Mierka;Hlbka;void;Lat;Lon;HPV;Na;URL\n'''
-
-# HEADER =['Vrt','File','Uloha','Priloha','Ucel','Firma','Lokalita','Okres','Kraj','JTSKX','\
-#         JTSKY','Hteren','Hpaznica','Dielo','Etapa','Obstaravatel','Vrtal','Suprava','Vrtmajster','Doba','\
-#         Geolog','Mierka','Hlbka','void','Lat','Lon','HPV','Na','URL']
-# SEP = ';'
 
 HEADER ='''Vrt;Uloha;JTSKX;JTSKY;Hteren;Vrtal;Geolog;Hlbka;Lat;Lon;URL;\n'''
 
 #len xlsx, openpyxl nepodporuje xls
 wblist = dirEntries(TOPDIR,True,  'xlsx')
-print('wblist:', wblist)
+# print('wblist:', wblist)
 # _KML = simplekml.Kml()
 vrtyDict = list()
 vrty = list()
 
 df = pd.DataFrame()    
-f= open(GEO5QGIS, 'w')
+f = open(GEO5QGIS, 'w')
 f.write(HEADER)
     
 
@@ -181,8 +174,9 @@ for xlsx in wblist:
         except Exception as err:
             logger.error("Exception: %s %s %s", vrt, err, type(err))
     try:
-        df1 = pd.read_excel(xlsx, sheet_name = 'FieldTests')
-        df = pd.concat([df1, df])
+        # df1 = pd.read_excel(xlsx, sheet_name = 'FieldTests', engine='calamine')
+        # df = pd.concat([df1, df])
+        pass
     except Exception as err:
         logger.error("Exception sheet: %s %s %s", xlsx, err, type(err))
 

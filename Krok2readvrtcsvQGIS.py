@@ -7,7 +7,9 @@ import proj4
 import os.path
 import logging
 import _utils
+from _funcs import chkdirs
 from _settings import *
+chkdirs()
 
 
 VRTCSV = '\\' + VRTCSV
@@ -20,7 +22,7 @@ logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='w'))
 logger.addHandler(logging.StreamHandler())
 logger.setLevel = logging.INFO
 logger_pdf = logging.getLogger('pdf')
-# logger_pdf.addHandler(logging.StreamHandler())
+logger_pdf.addHandler(logging.StreamHandler())
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='w'))
 resultfile = open(VRTCSVQGIS, 'w') # do resultfile zapisuje len CVSReader a main a uzatvara ho main 
 
@@ -53,14 +55,12 @@ def adjust_pdf(dir, filename):
 				#logger.warning("2 " +  pdffullname)
 				############### print(pdffullname)
 				retval = pdffullname
-	if retval != 'NA':				
-		# pdfpath = pdfpath0.replace(PATHBASEINDB, WEBTOPDIR)
-		# pdfpath = pdfpath.replace('\\', '/')
-		# retval = pdfpath + filename + ".pdf"
-		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
-		retval = retval.replace('\\', '/')
-	else:
-		logger_pdf.error('Chýba ' + pdfpath0 + filename + '.pdf')
+	if retval == 'NA':				
+		retval = pdfpath0 + filename + '.pdf'
+		logger_pdf.error(f'{retval}  nenajdene, polozka pripravena')
+
+	retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
+	retval = retval.replace('\\', '/')
 	return retval
 	
 

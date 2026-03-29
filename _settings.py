@@ -3,13 +3,13 @@
 
 '''
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\testdelme'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
-TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202509'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
-TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202512'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
-TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5202506'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5_202509A'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+# TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202512'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+# TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5202506'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\err'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\ErrorsOK'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
-TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_ALL'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
-#TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202509'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+# TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_ALL'    # Nesprávneskúsiť r'./Data', teda TOPDIR by bola curdir/Data
+# TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202509'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 JOINDIR = r'c:\Shares\vrty\vrty3\python\joindir'     # Vyuziva len krok5 - sem xlsx na spajanie do jedneho
 EXPVRTLOZ = r'c:\Shares\vrty\vrty3\python\ExpVrtLozOld.exe' 
 EXPVRT =  r'c:\Shares\vrty\vrty3\python\ExpVrt2025.exe'
@@ -41,7 +41,7 @@ SHGEO5 = 'GEO5'
 SHVRT = 'VRT'
 SHVRTLOZ = 'VRTLOZ'
 
-EXCELWB = TOPDIR + r'\vrty.xlsx'
+EXCELWB = TOPDIR + '\\' + TOPDIR.split('\\')[-1] + r'-vrty.xlsx'
 EXCELJOINED = JOINDIR + r'\Spojene_vrty.xlsx'
 KMLNAME = TOPDIR + r'\KML.kml'
 KMLJOINED = JOINDIR + r'\KML.kml'
@@ -66,3 +66,4 @@ VRTLOZDATCSV = 'vrtlozdat.csv'
 
 ERRDIRS =['10031', '11351', '11576', '11598', '11789', '11827', '11849'] # v tychto adresaroch krok1 negeneruje csv
 
+print(EXCELWB)

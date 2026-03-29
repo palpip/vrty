@@ -6,10 +6,12 @@ import _utils
 import proj4
 import os.path
 import logging
+from _funcs import chkdirs
 from _settings import *
+chkdirs()
 
 VRTLOZCSV = r'\\' + VRTLOZCSV
-VRTLOZDATCSV = r'\\' + VRTLOZDATCSV
+VRTLOZDATCSV = r'\\' + VRTLOZDATCSV 
 
 
 logger=logging.getLogger('vrt')
@@ -44,15 +46,12 @@ def adjust_pdf(dir, filename):
 				#logger.warning("2 " +  pdffullname)
 				print(pdffullname)
 				retval = pdffullname
-	if retval != 'NA':				
-		# pdfpath = pdfpath0.replace(PATHBASEINDB, WEBTOPDIR)
-		# pdfpath = pdfpath.replace('\\', '/')
-		# retval = pdfpath + filename + ".pdf"
-		retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
-		retval = retval.replace('\\', '/')
-	else:
-		logger_pdf.error('Chýba ' + pdfpath0 + filename + '.pdf')
-		print(row[0],retval)	
+	if retval == 'NA':				
+		retval = pdfpath0 + filename + '.pdf'
+		logger_pdf.error(f'{retval}  nenajdene, polozka pripravena')
+
+	retval = retval.replace(PATHBASEINDB, WEBTOPDIR)
+	retval = retval.replace('\\', '/')
 	return retval
 
 GOODROWCOUNT = 0

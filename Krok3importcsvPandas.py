@@ -4,7 +4,8 @@ import logging
 import pandas as pd
 import openpyxl as opx
 from _funcs import *
-from  _settings import *
+from _settings import *
+chkdirs()
 
 
 

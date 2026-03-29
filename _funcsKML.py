@@ -6,6 +6,9 @@ import logging
 # from proj4 import JTSK_to_WGS
 # from _utils import dirEntries
 from _settings import *
+from _funcs import chkdirs
+chkdirs()
+
 
 logging.basicConfig(filename = KROK4LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger()

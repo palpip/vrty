@@ -3,7 +3,9 @@ import os
 import logging
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
-from  _settings import *
+from _funcs import chkdirs
+from _settings import *
+chkdirs()
 
 
 logger=logging.getLogger('vrt')

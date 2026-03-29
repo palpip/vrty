@@ -1,3 +1,5 @@
+.\.venv\scripts\python Krok1Prepare.py
+
 rem .\.venv\scripts\activate.bat
 rem nacita surove data z Geo5, Vrt, VrtLoz a vytvori csv
 .\.venv\scripts\python Krok2ReadGeo5.py

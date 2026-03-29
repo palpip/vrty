@@ -11,9 +11,9 @@ logging.basicConfig(filename = KROK4LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger()
 _KML = '' #global variable initialized in main
 
-LOZVRTCOLOR = 'ffff0000' # aabbggrr def process_vrt(wb):
-VRTCOLOR =    'ff00ff00'
-GEO5COLOR =   'fffff00f'
+LOZVRTCOLOR = 'ffff00ff' # aabbggrr def process_vrt(wb):
+VRTCOLOR =    'ff00f0f0'
+GEO5COLOR =   'fffffffff'
 
 def get_cells_dict(sheet):
     '''fn dostane sheet z ktorého vráti zoznam dictionaries

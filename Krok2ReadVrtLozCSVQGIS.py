@@ -140,7 +140,7 @@ def get_hpv(vrt):
     if vrt == '':
          return {}
     try:
-        [vrtname, vrtfile,dummy] = re.split('[\n;]', vrt,2)
+        [vrtname, vrtfile,dummy] = re.split('[\n;]', vrt, maxsplit = 2)
     except Exception as err:
         logger.error('get_hpv: ', vrt, f"ERR {err=}, {type(err)=}")  #je to trochu riziko
     

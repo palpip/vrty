@@ -4,6 +4,7 @@ import openpyxl as op
 import simplekml
 import csv
 import logging
+import pandas as pd
 from proj4 import JTSK_to_WGS
 from _utils import dirEntries
 from _settings import *
@@ -11,6 +12,7 @@ from _settings import *
 
 logger=logging.getLogger('vrt')
 logger.addHandler(logging.FileHandler(KROK2LOGFILE, mode='a'))
+logger.addHandler(logging.StreamHandler())
 logger_pdf = logging.getLogger('pdf')
 logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
 
@@ -55,30 +57,6 @@ def get_URL_uloha(vrtname, wbname):
     #print(urlname)
     return(urlname, uloha)
 
-# def kmlwrite_one_point_balloon(vrt):
-#     '''Používa global _KML'''
-#     global _KML
-#     btext = 'čís:{}<br>'.format(vrt['Názov skúšky'])+\
-#             'úloha:{}<br>'.format(vrt['Úloha'])+\
-#             'výška:{}<br>'.format(vrt['Súradnica Z'])+\
-#             'dokumentoval:{}<br>'.format(vrt['Dokumentoval'])+\
-#             '<a href="{}"> PDF </a>'.format(vrt['URL'])
-
-#     pt = _KML.newpoint(name=vrt['Názov skúšky'], coords=[(vrt['Lon'],vrt['Lat'])])
-#     # print(vrt['Názov skúšky'], vrt['Súradnica X'], vrt['Súradnica Y'],str(vrt['Lat']),str(vrt['Lon']), vrt['URL'])
-#     pt.description = vrt['Názov skúšky']
-#     pt.balloonstyle.text = btext
-#     pt.style.iconstyle.color ='ff00ff00' # aabbggrr
-
-# def kmlwrite_one_point_extended(vrt):
-#     '''Používa global _KML'''
-#     global _KML
-    
-#     pt = _KML.newpoint(name=vrt['Názov skúšky'], coords=[(vrt['Lon'],vrt['Lat'])])
-#     pt.extendeddata.newdata(name='birds', value=400, displayname="Bird Species")
-#     pt.extendeddata.newdata(name='aviaries', value=100, displayname="Aviaries")
-#     pt.extendeddata.newdata(name='visitors', value=10000, displayname="Annual Visitors")
-    
 
 def get_hlbky_dict(sheet):
     '''vytvori dictionary vrt:maxhlbka a vrati ho'''
@@ -174,8 +152,12 @@ print('wblist:', wblist)
 # _KML = simplekml.Kml()
 vrtyDict = list()
 vrty = list()
+
+df = pd.DataFrame()    
+f= open(GEO5QGIS, 'w')
+f.write(HEADER)
     
-f= open(GEO5QGIS, 'w')  
+
 for xlsx in wblist:
     
     if xlsx != EXCELWB: #nie vysledkovy excel, len excely v podadresaroch vrtov
@@ -183,14 +165,27 @@ for xlsx in wblist:
         vrty = (process_workbook(xlsx))
     for dic in vrty:
         if dic: vrtyDict.append(dic)
-    f.write(HEADER)
     for vrt in vrtyDict:
-         vals = map(str,vrt.values())
-         vals = [x.replace('\n', ' ') for x in vals]
-         f.write('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
-                 , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
-        #  print('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
-        #          , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
+        try:
+            vals = map(str,vrt.values())
+            vals = [x.replace('\n', ' ') for x in vals]
+            if not 'Vrtmajster' in vrt: vrt['Vrtmajster'] = '-'
+            if not 'Dokumentoval' in vrt: vrt['Dokumentoval'] = '-'
+            
+            f.write('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
+                    , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
+            #  print('{};{};{};{};{};{};{};{};{};{};{}\n'.format(vrt['Názov skúšky'], vrt['Úloha'], vrt['Súradnica X'], vrt['Súradnica Y'], vrt['Súradnica Z']\
+            #          , vrt['Vrtmajster'], vrt['Dokumentoval'], vrt['Hĺbka'], vrt['Lat'], vrt['Lon'], vrt['URL'] ))
+            vrt_the_dict = pd.DataFrame({'name':vrt.keys(), 'value':vrt.values()}).transpose()
+            
+        except Exception as err:
+            logger.error("Exception: %s %s %s", vrt, err, type(err))
+    try:
+        df1 = pd.read_excel(xlsx, sheet_name = 'FieldTests')
+        df = pd.concat([df1, df])
+    except Exception as err:
+        logger.error("Exception sheet: %s %s %s", xlsx, err, type(err))
+
 # _KML.save(KMLNAME)
 #print(vrtyDict)
 

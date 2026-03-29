@@ -92,7 +92,40 @@ def create_joined():
             df_concat = pd.concat([df_concat, df])
             print(xlsfile, sheet, df.shape, df_concat.shape)
             add_to_xls(df_concat, sheet)
-        
+import requests
+def test_url(df, list):
+    # for row in  df[list].iterrows():
+    #     print(row)
+    # return
+
+    tested = 0
+    failed = 0
+
+    for row in  df[list].iterrows():
+        myrow = row[1]
+        url=myrow[list[0]]
+        rest = f"{myrow[list[1]]} : {myrow[list[2]]} "
+        tested += 1
+        try:
+            page = requests.get(url)
+            # print(url, page.status_code)
+            if page.status_code != 200:
+                print("Err ", url, page.status_code, rest)
+                failed += 1
+        except Exception as err:        
+            failed += 1         #(requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
+            print("Err ", url, rest)
+    print(f'pokusov: {tested} zlyhani {failed}')
+def test_pdf_access():
+    TOTEST = EXCELJOINED
+    TOTEST = EXCELWB
+    
+    test_url(pd.read_excel(TOTEST, sheet_name='GEO5'), ['URL','Vrt', 'Uloha'])
+    test_url(pd.read_excel(TOTEST, sheet_name='VRT'), ['PDF','Vrt', 'File'])
+    test_url(pd.read_excel(TOTEST, sheet_name='VRTLOZ'), ['PDF','Vrt', 'File'])
+    
+test_pdf_access()    
+exit(0)
 
 _KML = simplekml.Kml()
 FOLGEO5 = _KML.newfolder(name='GEO5')
@@ -116,24 +149,6 @@ exit(0)
 
 
 
-import requests
-def test_url(df, col):
-    for url in df[col]:
-        try:
-            page = requests.get(url)
-            # print(url, page.status_code)
-            if page.status_code != 200:
-                print(url, page.status_code)
-        except Exception as err:        
-            pass         #(requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
-            print(url)
-
-def test_pdf_access():
-    test_url(pd.read_excel(EXCELJOINED, sheet_name='GEO5'), 'URL')
-    test_url(pd.read_excel(EXCELJOINED, sheet_name='VRT'), 'PDF')
-    test_url(pd.read_excel(EXCELJOINED, sheet_name='VRTLOZ'), 'PDF')
-    
-    
 
 test_pdf_access()
 exit(0)    

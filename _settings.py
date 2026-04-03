@@ -21,6 +21,7 @@ JOINDIR = r'C:\Users\envigeo\program\python\vrty\joindir'     # Vyuziva len krok
 #TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_Geo5_202509' 
 # TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_Geo5_202512' 
 TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_202509_spracovane' 
+TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_2026' 
 EXPVRTLOZ = r'C:\Users\envigeo\program\python\vrty\ExpVrtLozOld.exe' 
 EXPVRT = r'C:\Users\envigeo\program\python\vrty\ExpVrt2025.exe' 
 

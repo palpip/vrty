@@ -4,13 +4,50 @@ import openpyxl as op
 import simplekml
 import csv
 import logging
-from pykml import parser
 # from proj4 import JTSK_to_WGS
 # from _utils import dirEntries
+import pandas as pd
 from _settings import *
+import requests
 
 logging.basicConfig(filename = KROK4LOGFILE, level=logging.INFO, filemode='w')
 logger=logging.getLogger()
+
+def test_url(df, list):
+
+    tested = 0
+    failed = 0
+
+    for row in  df[list].iterrows():
+        myrow = row[1]
+        url=myrow[list[0]]
+        rest = f"{myrow[list[1]]} : {myrow[list[2]]} "
+        tested += 1
+        try:
+            page = requests.get(url)
+            # print(url, page.status_code)
+            if page.status_code != 200:
+                print("Err ", url, page.status_code, rest)
+                failed += 1
+        except Exception as err:        
+            failed += 1         #(requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
+            print("Err ", url, rest)
+    return tested, failed
+    
+def test_pdf_access():
+    TOTEST = EXCELJOINED
+    # TOTEST = EXCELWB
+    
+    tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='GEO5'), ['URL','Vrt', 'Uloha'])
+    print(f'GEO5 pokusov: {tested} zlyhani {failed}')
+    tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='VRT'), ['PDF','Vrt', 'File'])
+    print(f'VRT pokusov: {tested} zlyhani {failed}')
+    tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='VRTLOZ'), ['PDF','Vrt', 'File'])
+    print(f'VRTLOZ pokusov: {tested} zlyhani {failed}')
+ 
+test_pdf_access()    
+exit(0)
+
 _KML = '' #global variable initialized in main
 
 

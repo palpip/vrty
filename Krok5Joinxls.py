@@ -15,8 +15,13 @@ import _funcsKML as fKML
 import pandas as pd
 chkdirs()
 
-logging.basicConfig(filename = 'CCC'+KROK5LOGFILE, level=logging.INFO, filemode='w')
-logger=logging.getLogger()
+logger=logging.getLogger('vrt')
+logger.addHandler(logging.FileHandler(KROK5LOGFILE, mode='a'))
+logger.addHandler(logging.StreamHandler())
+# logger_pdf = logging.getLogger('pdf')
+# logger_pdf.addHandler(logging.StreamHandler())
+# logger_pdf.addHandler(logging.FileHandler(KROK2PDF, mode='a'))
+
 
 fKML.logger = logger # pokus o presmerovanie
 logger.info('start')
@@ -65,10 +70,12 @@ def add_to_xls(df, shnum):
     
 
 def get_xlsx_to_join():
-    ''' Funkcia pozrie do TOPDIR a JOINDIR a vráti zoznam xls na spájanie
-    táto funkcia netestuje, či sú to súbory z vrtov alebo nie'''
+    ''' Funkcia pozrie do JOINDIR a vráti zoznam xls na spájanie
+    táto funkcia netestuje, či sú to súbory z vrtov alebo nie
+    '''
+    xlsfiles = []
     xlsfiles = (dirEntries(JOINDIR, False, 'xlsx'))
-    # xlsfiles = xlsfiles.extend(TOPDIR, False, 'xlsx')
+    xlsfiles.extend(dirEntries(TOPDIR, False, 'xlsx'))
     return (xlsfiles)
 
 def create_joined():    
@@ -92,11 +99,10 @@ def create_joined():
             df_concat = pd.concat([df_concat, df])
             print(xlsfile, sheet, df.shape, df_concat.shape)
             add_to_xls(df_concat, sheet)
+
+
 import requests
 def test_url(df, list):
-    # for row in  df[list].iterrows():
-    #     print(row)
-    # return
 
     tested = 0
     failed = 0
@@ -110,22 +116,25 @@ def test_url(df, list):
             page = requests.get(url)
             # print(url, page.status_code)
             if page.status_code != 200:
-                print("Err ", url, page.status_code, rest)
+                print("Err ", url)
+                logger.error(f'Err {url} {page.status_code} {rest}')
                 failed += 1
         except Exception as err:        
             failed += 1         #(requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
-            print("Err ", url, rest)
-    print(f'pokusov: {tested} zlyhani {failed}')
+            print(f'Err  {url}  {rest}')
+    return tested, failed
+    
 def test_pdf_access():
     TOTEST = EXCELJOINED
-    TOTEST = EXCELWB
+    # TOTEST = EXCELWB
     
-    test_url(pd.read_excel(TOTEST, sheet_name='GEO5'), ['URL','Vrt', 'Uloha'])
-    test_url(pd.read_excel(TOTEST, sheet_name='VRT'), ['PDF','Vrt', 'File'])
-    test_url(pd.read_excel(TOTEST, sheet_name='VRTLOZ'), ['PDF','Vrt', 'File'])
+    tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='GEO5'), ['URL','Vrt', 'Uloha'])
+    print(f'GEO5 pokusov: {tested} zlyhani {failed}')
+    tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='VRT'), ['PDF','Vrt', 'File'])
+    print(f'VRT pokusov: {tested} zlyhani {failed}')
+    tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='VRTLOZ'), ['PDF','Vrt', 'File'])
+    print(f'VRTLOZ pokusov: {tested} zlyhani {failed}')
     
-test_pdf_access()    
-exit(0)
 
 _KML = simplekml.Kml()
 FOLGEO5 = _KML.newfolder(name='GEO5')
@@ -133,25 +142,15 @@ FOLVRTLOZ = _KML.newfolder(name='VRTLOZ',visibility=0, open=0)
 FOLVRT = _KML.newfolder(name='VRT', visibility=0, open=0)
 FOLVRT.visibility = 0
 
-create_joined()
+# create_joined()
+
+test_pdf_access()    
+
+print('Tvorba KML zo spojenych')
 wb = op.load_workbook(EXCELJOINED)
 vrtygeo5 = (fKML.process_GEO5(wb, FOLGEO5))
 vrty = (fKML.process_vrt(wb, FOLVRT))
 vrtyloz = (fKML.process_vrt_loz(wb, FOLVRTLOZ))
-_KML.save(KMLNAME)
-
 print(f'{EXCELJOINED} obsahuje = geo5:{len(vrtygeo5)} ks, vrt:{len(vrty)} ks, vrtloz:{len(vrtyloz)} ks ...  ALL DONE')
-
-
-
-exit(0)
-#########################################
-
-
-
-
-test_pdf_access()
-exit(0)    
-
-
- 
+_KML.save(JOINDIR + r'\Spojene_vrty.kml')
+print('Spojene KML v ', JOINDIR + r'\Spojene_vrty.kml')

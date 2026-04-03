@@ -90,7 +90,14 @@ def process_workbook(wbname):
     else:
         print(wbname, "neni")
         return
-    hlbky = get_hlbky_dict(wb['Dáta - Skúška|Vŕtanie'])
+    
+    if 'Dáta - Skúška|Vŕtanie' in wb.sheetnames:
+        hlbky = get_hlbky_dict(wb['Dáta - Skúška|Vŕtanie'])
+    elif 'Vŕtanie' in wb.sheetnames:
+        hlbky = get_hlbky_dict(wb['Vŕtanie'])
+    else:
+        logger.error('nie je list vrtanie')
+        hlbky = 'NA'
     retval = []
     for vrt in vrty:
         #eliminuj chyby ak načíta prázdny riadok

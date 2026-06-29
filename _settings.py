@@ -2,7 +2,7 @@
     TOPDIR je hlavný dátový adresár, v ktorom sa nachádzajú podadresáre so súbormi vrt, vrl a xlsx (GEO5)
 
 '''
-# TOPDIR = r'c:\Shares\vrty\vrty3\python\testdelme'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
+# TOPDIR = r'c:\Shares\vrty\vrty3\python\testdelme'    #skúsiť r'./Data', teda TOPDIR by bola curdir/	Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5_202509A'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_202512'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
 # TOPDIR = r'c:\Shares\vrty\vrty3\python\Vrty_Geo5202506'    #skúsiť r'./Data', teda TOPDIR by bola curdir/Data
@@ -21,7 +21,7 @@ JOINDIR = r'C:\Users\envigeo\program\python\vrty\joindir'     # Vyuziva len krok
 #TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_Geo5_202509' 
 # TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_Geo5_202512' 
 TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_202509_spracovane' 
-TOPDIR = r'C:\Users\envigeo\program\python\vrty\Vrty_2026' 
+TOPDIR = r'C:\Users\envigeo\program\python\vrty\test' 
 EXPVRTLOZ = r'C:\Users\envigeo\program\python\vrty\ExpVrtLozOld.exe' 
 EXPVRT = r'C:\Users\envigeo\program\python\vrty\ExpVrt2025.exe' 
 
@@ -57,6 +57,7 @@ KROK2PDF = TOPDIR + r'\krok2pdf.log'
 KROK3LOGFILE = TOPDIR + r'\krok3.log'
 KROK4LOGFILE = TOPDIR + r'\krok4.log'
 KROK5LOGFILE = JOINDIR + r'\krok5.log'
+KROK6LOGFILE = JOINDIR + r'\krok6.log'
 
 
 

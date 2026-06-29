@@ -9,6 +9,7 @@ err/
 2025*
 __pycache*
 Vrty_*\
+test/*
 compare/
 testDelme/
 Error*/

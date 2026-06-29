@@ -71,11 +71,14 @@ def add_to_xls(df, shnum):
 
 def get_xlsx_to_join():
     ''' Funkcia pozrie do JOINDIR a vráti zoznam xls na spájanie
-    táto funkcia netestuje, či sú to súbory z vrtov alebo nie
+    táto funkcia netestuje, či sú to súbory z vrtov alebo nie.
+    Načita a spojí xlsx z JOINDIR. Do 202606 k nim pridal xlsx z TOPDIR.
+    Od 202606 je xlsx z TOPDIR v JOINDIR pod menom TOPDIR, teda
+    funkcia vracia LEN xlsx z JOINDIR
     '''
     xlsfiles = []
     xlsfiles = (dirEntries(JOINDIR, False, 'xlsx'))
-    xlsfiles.extend(dirEntries(TOPDIR, False, 'xlsx'))
+    # xlsfiles.extend(dirEntries(TOPDIR, False, 'xlsx'))
     return (xlsfiles)
 
 def create_joined():    
@@ -95,9 +98,9 @@ def create_joined():
         for xlsfile in xlsfiles:
             print(sheet, xlsfile)
             df = pd.read_excel(xlsfile, sheet_name = sheet)
-            print(xlsfile, sheet, df.shape)
+            # logger.info(f'{xlsfile}, {sheet}, {df.shape}')
             df_concat = pd.concat([df_concat, df])
-            print(xlsfile, sheet, df.shape, df_concat.shape)
+            logger.info(f' {xlsfile}, {sheet}, {df.shape}, {df_concat.shape}')
             add_to_xls(df_concat, sheet)
 
 
@@ -135,16 +138,16 @@ def test_pdf_access():
     tested, failed = test_url(pd.read_excel(TOTEST, sheet_name='VRTLOZ'), ['PDF','Vrt', 'File'])
     print(f'VRTLOZ pokusov: {tested} zlyhani {failed}')
     
-
+get_xlsx_to_join()
 _KML = simplekml.Kml()
 FOLGEO5 = _KML.newfolder(name='GEO5')
 FOLVRTLOZ = _KML.newfolder(name='VRTLOZ',visibility=0, open=0)
 FOLVRT = _KML.newfolder(name='VRT', visibility=0, open=0)
 FOLVRT.visibility = 0
 
-# create_joined()
+create_joined()
 
-test_pdf_access()    
+# test_pdf_access()    
 
 print('Tvorba KML zo spojenych')
 wb = op.load_workbook(EXCELJOINED)

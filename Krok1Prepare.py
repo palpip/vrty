@@ -19,7 +19,7 @@ logging.basicConfig(filename = KROK1LOGFILE, level=logging.DEBUG, filemode='w')
 logger=logging.getLogger(name='ccc')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
-print(logging.BASIC_FORMAT)
+# print(logging.BASIC_FORMAT)
 
 SEP = '\\' # window
 def Prepare(subdirs):

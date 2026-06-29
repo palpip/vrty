@@ -1,10 +1,12 @@
 import csv
 import os
+import shutil
 import logging
 import pandas as pd
 import openpyxl as opx
 from _funcs import *
 from _settings import *
+
 chkdirs()
 
 
@@ -109,6 +111,7 @@ logger.info(40*'+'+' started krok3 Pandas')
 create_xls_from_cvsPandas2(VRTLOZCSVQGIS, SHVRTLOZ,SHVRTLOZ)
 create_xls_from_cvsPandas2(VRTCSVQGIS, SHVRT, SHVRT)
 create_xls_from_cvsPandas2(GEO5QGIS, SHGEO5, SHGEO5)
+shutil.copy2(EXCELWB, JOINDIR)
 logger.info(40*'+'+' done krok3 Pandas')
 
 
